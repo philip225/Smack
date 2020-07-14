@@ -16,7 +16,8 @@ import androidx.appcompat.widget.Toolbar
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var appBarConfiguration: AppBarConfiguration
+    // private lateinit var appBarConfiguration: AppBarConfiguration
+    private lateinit var drawerLayout: DrawerLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,21 +27,24 @@ class MainActivity : AppCompatActivity() {
         // top left).
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
-        /*
+        /* Floating action button is not used in this course.
         val fab: FloatingActionButton = findViewById(R.id.fab)
         fab.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show()
         }
-
          */
-        val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
+        // Notice drawerLayout is now global, this is needed else ware.
+        drawerLayout  = findViewById(R.id.drawer_layout)
         val navView: NavigationView = findViewById(R.id.nav_view)
         val navController = findNavController(R.id.nav_host_fragment)
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
-        appBarConfiguration = AppBarConfiguration(setOf(
-                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow), drawerLayout)
+        // We have no menu any more!! So this is not applicable.
+//        appBarConfiguration = AppBarConfiguration(setOf(
+//                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow), drawerLayout)
+        // The second parameter changes from appBarConfiguration to drawerLayout for the same
+        // reason of their being no menu.
         setupActionBarWithNavController(navController, drawerLayout)
         navView.setupWithNavController(navController)
     }
@@ -53,7 +57,14 @@ class MainActivity : AppCompatActivity() {
 //    }
 
     override fun onSupportNavigateUp(): Boolean {
+        /**
+         * This handles navigation for the draw - showing the draw when the tool button is clicked.
+         * We cannot use a appBarConfiguration with this since we have removed the menu for our
+         * dynamic layout.
+         * However navigateUp alternatively takes a DrawerLayout object, hence the code amend to
+         * allow us access to 'drawerLayout'.
+         */
         val navController = findNavController(R.id.nav_host_fragment)
-        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+        return navController.navigateUp(drawerLayout) || super.onSupportNavigateUp()
     }
 }
