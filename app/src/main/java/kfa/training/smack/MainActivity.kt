@@ -1,6 +1,7 @@
 package kfa.training.smack
 
 import android.os.Bundle
+import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import com.google.android.material.navigation.NavigationView
@@ -95,5 +96,12 @@ class MainActivity : AppCompatActivity() {
          */
         val navController = findNavController(R.id.nav_host_fragment)
         return navController.navigateUp(drawerLayout) || super.onSupportNavigateUp()
+    }
+
+    fun addChannelClicked(view: View) {
+        Toast.makeText(this, "Add channel button clicked.", Toast.LENGTH_LONG).show()
+    }
+    fun loginBtnNavClicked(view: View) {
+        Toast.makeText(this, "Login button clicked.", Toast.LENGTH_LONG).show()
     }
 }
