@@ -7,7 +7,7 @@
     tools:context=".MainActivity">
 
     <!-- This toolbar is required, it provides the draw pop-out
-     functionality when you click on the three horizontal bars
+     functionality when you click on the three horizontal bars,
      located in the top right. -->
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
@@ -22,7 +22,7 @@
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 
     </com.google.android.material.appbar.AppBarLayout>
-    <!--
+    <!-- FAB button is not used in this course.
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"
@@ -31,6 +31,7 @@
         android:layout_margin="@dimen/fab_margin"
         app:srcCompat="@android:drawable/ic_dialog_email" />
     -->
+    <!-- content_main contains the root navigation fragment. -->
     <include layout="@layout/content_main" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

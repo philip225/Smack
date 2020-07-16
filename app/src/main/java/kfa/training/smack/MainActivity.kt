@@ -1,23 +1,31 @@
 package kfa.training.smack
 
 import android.os.Bundle
-import android.view.Menu
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.snackbar.Snackbar
+import android.widget.ArrayAdapter
+import android.widget.Toast
 import com.google.android.material.navigation.NavigationView
 import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import kfa.training.smack.adapters.TemporaryAdapter
+import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
     // private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var drawerLayout: DrawerLayout
+
+    // Main activity will handle the recycler views as per the course.
+    // These variables are temporary and will be updated in lesson 88. Download Channels.
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var viewAdapter: TemporaryAdapter
+    private lateinit var viewManager: RecyclerView.LayoutManager // May not be used.
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,6 +55,27 @@ class MainActivity : AppCompatActivity() {
         // reason of their being no menu.
         setupActionBarWithNavController(navController, drawerLayout)
         navView.setupWithNavController(navController)
+
+        /**
+         * Temporary recycler view setup to see it laid out at runtime in the draw, and to test the
+         * recycler works correctly in the draw (including scrolling).
+        **/
+        val someItems = mutableListOf<String>()
+        for(ct in 1..20){
+            someItems.add("Placeholder item $ct")
+        }
+
+        recyclerView = channel_list
+        // Kotlin will smart cast someItems to immutable.
+        viewAdapter = TemporaryAdapter(this, drawerLayout, someItems){
+            Toast.makeText(this, "Draw item clicked! :: $it", Toast.LENGTH_LONG).show()
+        }
+        channel_list.adapter = viewAdapter
+        // Remember the layout!
+        channel_list.layoutManager = LinearLayoutManager(this)
+        // Layout size per cell is not going to change, so we might as well optimise.
+        channel_list.setHasFixedSize(true)
+        /** END Temporary recycler view setup **/
     }
 
         // The course does not make use of an options menu.
@@ -60,7 +89,7 @@ class MainActivity : AppCompatActivity() {
         /**
          * This handles navigation for the draw - showing the draw when the tool button is clicked.
          * We cannot use a appBarConfiguration with this since we have removed the menu for our
-         * dynamic layout.
+         * dynamic draw layout.
          * However navigateUp alternatively takes a DrawerLayout object, hence the code amend to
          * allow us access to 'drawerLayout'.
          */

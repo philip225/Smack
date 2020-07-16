@@ -8,17 +8,67 @@
     android:fitsSystemWindows="true"
     tools:openDrawer="start">
 
+    <!--NOTICE THIS!
+  This includes a "main fragment" that plays no part in the UI per say.
+  Navigation is graph based, it has a "root system" starting from a
+  defined "top" or root node.
+  This root node is know as the host, and is a fragment View that plays no part in
+  the UI, IE it has no views of its own (though it could do if desired, but
+  no point for our case!)
+  This HAS to be included outside of any constants, at the DrawerLayout
+  level.
+  Look at res/navigation/mobile_navigation.xml in Studio,
+  look under "Destinations" "HOST" you will see a link to
+  @navigation/mobile_navigation, which leads to content_main.xml which
+  has a fragment layout that is linked back to the navigation root.
+  app_bar_main layout includes content_main, thus content_main is
+  brought in here, by inclusion of app_bar_main.
+  -->
+    <include
+        android:id="@+id/app_bar_main_include"
+        layout="@layout/app_bar_main"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent" />
+
+    <!--
+    NavigationView header setting removed since we are
+    "manually" laying out this draw.
+    The header is now a child of NavigationView/ConstraintLayout/
+    -->
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/nav_view"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:fitsSystemWindows="true"
-        app:headerLayout="@layout/nav_header_main" />
-
-    <include
-        layout="@layout/app_bar_main"
+        android:fitsSystemWindows="true">
+        <!-- Deviation from course, used a ConstraintLayout instead of a  RelativeLayout
+        since the layout can be achieved using a ConstraintLayout and thus
+        cuts down on rendering calculation passes.
+        Where possible try to use a ConstraintLayout to reduce UI
+        layout computations.
+        -->
+        <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent">
+            <include
+                android:id="@+id/header_main_include"
+                layout="@layout/nav_header_main"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+            <!-- Deviation from course, chosen to use a RecyclerView, ListView
+            is OK for this but RecyclerView provides more optimisation and
+            is more flexible.
+             -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/channel_list"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginTop="8dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/header_main_include" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
+    </com.google.android.material.navigation.NavigationView>
 </androidx.drawerlayout.widget.DrawerLayout>
