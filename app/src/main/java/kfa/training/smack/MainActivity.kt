@@ -12,9 +12,11 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.view.GravityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kfa.training.smack.adapters.TemporaryAdapter
+import kfa.training.smack.utilities.navigateToFragment
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -102,7 +104,15 @@ class MainActivity : AppCompatActivity() {
         Toast.makeText(this, "Add channel button clicked.", Toast.LENGTH_LONG).show()
     }
     fun loginBtnNavClicked(view: View) {
-        Toast.makeText(this, "Login button clicked.", Toast.LENGTH_LONG).show()
+        /**
+         * Deviation from course, we are now using navigation to navigate to our login fragment.
+         * Navigation I found can have a long winded call, so I have written a shortcut infix
+         * to shorten the call.
+         */
+        // Close the draw!
+        drawerLayout.closeDrawer(GravityCompat.START)
+        // OR you can do navigateToFragment
+        navigateToFragment(this, R.id.action_nav_main_to_loginFragment)
     }
 
     fun sendMsgBtnClicked(view: View) {

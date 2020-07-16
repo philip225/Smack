@@ -5,7 +5,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.main.MainFragment">
-
+<!--
+Course deviation, this was originally in activity_main, now moved to this
+"main" fragment.
+-->
     <TextView
         android:id="@+id/mainChannelName"
         android:layout_width="match_parent"

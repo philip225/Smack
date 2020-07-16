@@ -9,6 +9,15 @@
         android:id="@+id/nav_main"
         android:name="kfa.training.smack.ui.main.MainFragment"
         android:label="@string/menu_home"
-        tools:layout="@layout/fragment_main" />
+        tools:layout="@layout/fragment_main" >
+        <action
+            android:id="@+id/action_nav_main_to_loginFragment"
+            app:destination="@id/loginFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="kfa.training.smack.LoginFragment"
+        android:label="fragment_login"
+        tools:layout="@layout/fragment_login" />
 
 </navigation>
