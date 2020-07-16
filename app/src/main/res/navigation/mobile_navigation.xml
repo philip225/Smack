@@ -9,6 +9,6 @@
         android:id="@+id/nav_main"
         android:name="kfa.training.smack.ui.main.MainFragment"
         android:label="@string/menu_home"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_main" />
 
 </navigation>
