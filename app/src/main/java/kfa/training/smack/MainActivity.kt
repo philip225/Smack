@@ -104,4 +104,8 @@ class MainActivity : AppCompatActivity() {
     fun loginBtnNavClicked(view: View) {
         Toast.makeText(this, "Login button clicked.", Toast.LENGTH_LONG).show()
     }
+
+    fun sendMsgBtnClicked(view: View) {
+        Toast.makeText(this, "Send message button clicked.", Toast.LENGTH_LONG).show()
+    }
 }

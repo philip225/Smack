@@ -26,10 +26,12 @@ class MainFragment : Fragment() {
             savedInstanceState: Bundle?
     ): View? {
         val root = inflater.inflate(R.layout.fragment_main, container, false)
-        val textView: TextView = root.findViewById(R.id.text_home)
-        mainViewModel.text.observe(viewLifecycleOwner, Observer {
-            textView.text = it
-        })
+        // Remove live data part for the time being, will see if this can be made use of, later on
+        // in the course.
+//        val textView: TextView = root.findViewById(R.id.text_home)
+//        mainViewModel.text.observe(viewLifecycleOwner, Observer {
+//            textView.text = it
+//        })
         return root
     }
 }
