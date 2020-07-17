@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kfa.training.smack.adapters.TemporaryAdapter
 import kfa.training.smack.utilities.navigateToFragment
+import kfa.training.smack.utilities.toasty
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -101,7 +102,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun addChannelClicked(view: View) {
-        Toast.makeText(this, "Add channel button clicked.", Toast.LENGTH_LONG).show()
+        toasty(this, "Add channel button clicked.")
     }
     fun loginBtnNavClicked(view: View) {
         /**
@@ -111,11 +112,12 @@ class MainActivity : AppCompatActivity() {
          */
         // Close the draw!
         drawerLayout.closeDrawer(GravityCompat.START)
-        // OR you can do navigateToFragment
+
+        // You can alternatively do: navigateToFragment(this, R.id.loginFragment)
         navigateToFragment(this, R.id.action_nav_main_to_loginFragment)
     }
 
     fun sendMsgBtnClicked(view: View) {
-        Toast.makeText(this, "Send message button clicked.", Toast.LENGTH_LONG).show()
+        toasty(this, "Send message button clicked.")
     }
 }

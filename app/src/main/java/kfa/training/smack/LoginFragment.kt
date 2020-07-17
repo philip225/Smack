@@ -5,8 +5,10 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import kfa.training.smack.utilities.navigateToFragment
 import kotlinx.android.synthetic.main.fragment_login.*
 
 /**
@@ -88,10 +90,14 @@ class LoginFragment : Fragment() {
             }
     }
 
-    fun loginLoginBtnClicked(view: View) {
+    private fun loginLoginBtnClicked(view: View) {
+        Toast.makeText(context, "LoginFragment: Login button clicked!", Toast.LENGTH_LONG).show()
 
     }
-    fun loginCreateUserBtnClicked(view: View) {
-
+    private fun loginCreateUserBtnClicked(view: View) {
+        /**
+         * Navigate to the create user fragment
+         */
+        navigateToFragment(this, R.id.action_loginFragment_to_createUserFragment)
     }
 }
