@@ -1,5 +1,6 @@
 package kfa.training.smack.ui.user
 
+import android.graphics.Color
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -8,6 +9,7 @@ import android.view.ViewGroup
 import kfa.training.smack.R
 import kfa.training.smack.utilities.toasty
 import kotlinx.android.synthetic.main.fragment_create_user.*
+import kotlin.random.Random
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -22,6 +24,10 @@ class CreateUserFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
+
+    var userAvatar = "profileDefault"
+    // This is the format required for the back end DB.
+    var avatarColor = "[0.5, 0.5, 0.5, 1]"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,15 +82,40 @@ class CreateUserFragment : Fragment() {
     }
 
     private fun generateUserAvatar(view: View){
-        context?.let{
-            toasty(it, "Generate user avatar clicked.")
+        /**
+         * Choose a random avatar.
+         */
+        // Kotlin now has Random mapped in, so you do not need an instantiated Random object any
+        // more.
+        val color = Random.nextInt(2)
+        val avatar = Random.nextInt(28)
+        userAvatar = if(color==0){
+            "light$avatar"
+        } else {
+            "dark$avatar"
         }
+
+        // Deviation from course, we do not have access to packageName directly inside a Fragment,
+        // since we are not an Activity. However the main activity is exposed to this fragment via
+        // 'activity' (getActivity()), we can use that to get our package name.
+        val resourceId = resources.getIdentifier(userAvatar, "drawable",
+            activity?.packageName)
+        createAvatarImageView.setImageResource(resourceId)
     }
 
     private fun generateColourClicked(view: View){
-        context?.let{
-            toasty(it, "Generate colour clicked.")
-        }
+        /**
+         * Choose a random colour for the avatar
+         */
+        val r = Random.nextInt(255)
+        val g = Random.nextInt(255)
+        val b = Random.nextInt(255)
+
+        createAvatarImageView.setBackgroundColor(Color.rgb(r,g,b))
+
+        // Course deviation, the conversion to a normalised float value of range [0,1], can be
+        // done entirely in the template, saving on intermediate variables.
+        avatarColor = "[${r.toDouble()/255}, ${g.toDouble()/255}, ${b.toDouble()/255}, 1]"
     }
 
     private fun createUserClicked(view: View){
