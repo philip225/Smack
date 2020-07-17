@@ -2,7 +2,6 @@ package kfa.training.smack
 
 import android.os.Bundle
 import android.view.View
-import android.widget.ArrayAdapter
 import android.widget.Toast
 import com.google.android.material.navigation.NavigationView
 import androidx.navigation.findNavController
@@ -107,8 +106,6 @@ class MainActivity : AppCompatActivity() {
     fun loginBtnNavClicked(view: View) {
         /**
          * Deviation from course, we are now using navigation to navigate to our login fragment.
-         * Navigation I found can have a long winded call, so I have written a shortcut infix
-         * to shorten the call.
          */
         // Close the draw!
         drawerLayout.closeDrawer(GravityCompat.START)
