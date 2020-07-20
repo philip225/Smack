@@ -2,11 +2,13 @@ package kfa.training.smack.ui.user
 
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import kfa.training.smack.R
+import kfa.training.smack.services.AuthService
 import kfa.training.smack.utilities.toasty
 import kotlinx.android.synthetic.main.fragment_create_user.*
 import kotlin.random.Random
@@ -120,7 +122,13 @@ class CreateUserFragment : Fragment() {
 
     private fun createUserClicked(view: View){
         context?.let{
-            toasty(it, "Create user clicked.")
+            AuthService.registerUser(
+                it, "test@test.com","12345"
+            ){
+                context?.let{context ->
+                    toasty(context, "Registered use response: $it")
+                }
+            }
         }
     }
 }
