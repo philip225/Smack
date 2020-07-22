@@ -1,5 +1,6 @@
 package kfa.training.smack.ui.user
 
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
@@ -7,8 +8,10 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import kfa.training.smack.R
 import kfa.training.smack.services.AuthService
+import kfa.training.smack.utilities.BROADCAST_USER_DATA_CHANGE
 import kfa.training.smack.utilities.navigateToFragment
 import kfa.training.smack.utilities.toasty
 import kotlinx.android.synthetic.main.fragment_create_user.*
@@ -49,6 +52,12 @@ class CreateUserFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        /**
+         * For any fragment any manipulation of the View objects has to be done in onViewCreated,
+         * since they do not exist until the fragment view has been created.
+         * You can access any of the view objects via synthetic imports, before onViewCreated is
+         * called, but they will all be set to null!
+         */
 
         // Wire up our click handlers
         createAvatarImageView.setOnClickListener {
@@ -60,6 +69,9 @@ class CreateUserFragment : Fragment() {
         createUserBtn.setOnClickListener {
             createUserClicked(it)
         }
+
+        // Hide our spinner
+        createSpinner.visibility = View.INVISIBLE
 
         super.onViewCreated(view, savedInstanceState)
     }
@@ -122,7 +134,7 @@ class CreateUserFragment : Fragment() {
     }
 
     private fun createUserClicked(view: View){
-
+        enableSpinner(true)
         val userName = createUserNameText.text.toString()
         val email = createEmailText.text.toString()
         val password = createPasswordText.text.toString()
@@ -133,6 +145,16 @@ class CreateUserFragment : Fragment() {
         Note that the context can be null if we are a detached fragment, thus 'context' is a
         nullable.
          */
+
+        // Included code from a course commenter (name redacted for GDPR), who commented on their
+        // being too many nested ifs!
+        if (userName.isEmpty() || email.isEmpty() || password.isEmpty()) {
+            toasty(context, "Make sure username, email and password are filled in.")
+            enableSpinner(false)
+            return
+        }
+
+        // This code is a bit messy, many many else/ifs, todo look into re-factoring.
         context?.let{context ->
             AuthService.registerUser(
                 context, email,password
@@ -160,14 +182,74 @@ class CreateUserFragment : Fragment() {
                                     Note that this path has to be added in the Studio navigation
                                     resource manager, it has been for this commit.
                                     */
+                                    // Disable the spinner (not sure why we need to do this since
+                                    // we are exiting this fragment).
+                                    enableSpinner(false)
+
+                                    /*
+                                    Communication back to the home fragment (main activity in
+                                    the course), in this course broadcasts are used.
+                                    https://developer.android.com/guide/components/broadcasts
+                                    You can alternatively send data to fragments since fragments
+                                    support parameterised data, being passed via bundles.
+                                    Thus you could pass data via navigation to the home fragment
+                                    which has the token and other user detains in it.
+
+                                    Broadcasts are intents which are broadcast (instead of being
+                                    run) by the broadcast system.
+                                    Typical call (inside fragment): context?.sendBroadcast(intent)
+                                    However this is insecure, Google recommends that
+                                    broadcasts, who's audience is just this app, make use of
+                                    local broadcasts, via a LocalBroadcastManager.
+                                    These are secure (only your app receives them) and as a bonus
+                                    are more efficient, since they do not use IPC.
+                                    */
+                                    val userDataChanged = Intent(BROADCAST_USER_DATA_CHANGE)
+                                    LocalBroadcastManager.getInstance(context).sendBroadcast(
+                                        userDataChanged)
+
                                     // "Press" the back button.
                                     activity?.onBackPressed()
+
+                                } else {
+                                    errorToast()
                                 }
                             }
+                        } else {
+                            errorToast()
                         }
                     }
+                } else {
+                    errorToast()
                 }
             }
         }
     }
+
+    private fun errorToast() {
+        // Deviation from course, made use of a previous util function, created for this re-write,
+        // to reduce Toast code.
+        toasty(context, "Something went wrong, please try again.")
+        enableSpinner(false)
+    }
+
+    private fun enableSpinner(enable: Boolean){
+        /**
+         * Show or hide the spinner and disable or enable the buttons.
+         */
+
+        // Course deviation simplified the code further by turning the if into an expression
+        // Also presented here is an oddity, no {}!
+        // Single lines thus don't need them!
+        createSpinner.visibility = if(enable)
+            View.VISIBLE
+         else
+            View.INVISIBLE
+
+        createUserBtn.isEnabled = !enable
+        createAvatarImageView.isEnabled = !enable
+        backgroundColourBtn.isEnabled = !enable
+    }
+
+
 }
