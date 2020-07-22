@@ -17,8 +17,8 @@
     <fragment
         android:id="@+id/loginFragment"
         android:name="kfa.training.smack.LoginFragment"
-        android:label="fragment_login"
-        tools:layout="@layout/fragment_login" >
+        android:label="Login"
+        tools:layout="@layout/fragment_login">
         <action
             android:id="@+id/action_loginFragment_to_nav_main"
             app:destination="@id/nav_main" />
@@ -29,7 +29,11 @@
     <fragment
         android:id="@+id/createUserFragment"
         android:name="kfa.training.smack.ui.user.CreateUserFragment"
-        android:label="fragment_create_user"
-        tools:layout="@layout/fragment_create_user" />
+        android:label="Create user"
+        tools:layout="@layout/fragment_create_user">
+        <action
+            android:id="@+id/action_createUserFragment_to_nav_main"
+            app:destination="@id/nav_main" />
+    </fragment>
 
 </navigation>

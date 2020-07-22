@@ -7,6 +7,7 @@ import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.JsonRequest
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import kfa.training.smack.utilities.URL_CREATE_USER
 import kfa.training.smack.utilities.URL_LOGIN
 import kfa.training.smack.utilities.URL_REGISTER
 import org.json.JSONException
@@ -121,5 +122,80 @@ object AuthService {
 
         // Add to a new request queue.
         Volley.newRequestQueue(context).add(loginRequest)
+    }
+
+    fun createUser(context: Context, name: String, email: String, avatarName: String,
+                   avatarColour: String, complete: (Boolean) -> Unit){
+        /**
+         * Create the user.
+         */
+        // You would think registerUser could perform this and save on this function, but think!
+        // This is done separately to reduce the possibility of overwriting and existing users
+        // details.
+        val jsonBody = JSONObject()
+        jsonBody.put(
+            "name", name
+        )
+        jsonBody.put(
+            "email", email
+        )
+        jsonBody.put(
+            "avatarName", avatarName
+        )
+        jsonBody.put(
+            "avatarColor", avatarColour
+        )
+
+        val requestBody = jsonBody.toString()
+
+        val createRequest = object: JsonObjectRequest(Method.POST, URL_CREATE_USER, null, Response.Listener {response ->
+            try{
+                UserDataService.name = response.getString("name")
+                UserDataService.email = response.getString("email")
+                UserDataService.avatarName = response.getString("avatarName")
+                UserDataService.avatarColour = response.getString("avatarColor")
+                UserDataService.id = response.getString("_id")
+                complete(true)
+            } catch(e: JSONException){
+                Log.d("AUTH/ERROR", "Issue with create user JSON: ${e.localizedMessage}")
+                complete(false)
+            }
+        }, Response.ErrorListener {error ->
+            Log.d("AUTH/ERROR", "Issue with create user request: $error")
+            complete(false)
+        }){
+            override fun getBodyContentType(): String {
+                // This allows for the full HTTP content type where you can specify the mime and
+                // the character set.
+                // JSON character set is always UTF8, we have to specify this for Volley otherwise
+                // the arcane ISO-8859-1 character set will be used (since that is the default for
+                // HTTP protocol)!
+                return "application/json; charset=utf-8"
+            }
+
+            override fun getBody(): ByteArray {
+                // Send our body, which we have to convert to a byte array encoded to UTF8.
+                // Course deviation, I formally encode the byte array to UTF8, the course
+                // relies on the default.
+                return requestBody.toByteArray(Charset.forName("utf-8"))
+            }
+
+            override fun getHeaders(): MutableMap<String, String> {
+                /*
+                This is a restricted call which requires authentication so we need to provide
+                the basic auth header.
+                 */
+
+                // Deviation from course, using mutableMapOf and 'to' operator you can reduce the
+                // code to this:
+                return mutableMapOf(
+                    "Authorization" to "Bearer $authToken"
+                )
+            }
+
+        }
+
+        // Add to a new request queue.
+        Volley.newRequestQueue(context).add(createRequest)
     }
 }

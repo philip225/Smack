@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import kfa.training.smack.R
 import kfa.training.smack.services.AuthService
+import kfa.training.smack.utilities.navigateToFragment
 import kfa.training.smack.utilities.toasty
 import kotlinx.android.synthetic.main.fragment_create_user.*
 import kotlin.random.Random
@@ -122,6 +123,7 @@ class CreateUserFragment : Fragment() {
 
     private fun createUserClicked(view: View){
 
+        val userName = createUserNameText.text.toString()
         val email = createEmailText.text.toString()
         val password = createPasswordText.text.toString()
         /*
@@ -138,8 +140,30 @@ class CreateUserFragment : Fragment() {
                 if(registerSuccess){
                     AuthService.loginUser(context, email, password){loginSuccess ->
                         if(loginSuccess){
-                            Log.d("CU/LOGIN","Login successful, token = ${AuthService.authToken}")
-                            Log.d("CU/LOGIN","Login successful, email = ${AuthService.userEmail}")
+                            AuthService.createUser(
+                                context, userName, email,userAvatar, avatarColor
+                            ){createSuccess ->
+                                if(createSuccess){
+                                    /*
+                                    Done !
+                                    Deviation from the course, we are navigating back to
+                                    the previous fragment, we do not have access to finish() (we
+                                    are a fragment not an activity).
+                                    To emulate finish() we can go back one step, technically this
+                                    is wrong, we should navigate to our main fragment since we are
+                                    logged in.
+                                    I presume the course deals with this in the next lecture
+                                    (81. Polishing up Create User Activity).
+                                    I would have done this:
+                                    navigateToFragment(this,
+                                        R.id.action_createUserFragment_to_nav_main)
+                                    Note that this path has to be added in the Studio navigation
+                                    resource manager, it has been for this commit.
+                                    */
+                                    // "Press" the back button.
+                                    activity?.onBackPressed()
+                                }
+                            }
                         }
                     }
                 }
