@@ -121,12 +121,27 @@ class CreateUserFragment : Fragment() {
     }
 
     private fun createUserClicked(view: View){
-        context?.let{
+
+        val email = createEmailText.text.toString()
+        val password = createPasswordText.text.toString()
+        /*
+        We are in a fragment so we are not a context! We need to get the activity
+        context, in our case the MainActivity context.
+        This is provided for us via getContext() which is Kotlin mapped to 'context'.
+        Note that the context can be null if we are a detached fragment, thus 'context' is a
+        nullable.
+         */
+        context?.let{context ->
             AuthService.registerUser(
-                it, "test@test.com","12345"
-            ){
-                context?.let{context ->
-                    toasty(context, "Registered use response: $it")
+                context, email,password
+            ){registerSuccess ->
+                if(registerSuccess){
+                    AuthService.loginUser(context, email, password){loginSuccess ->
+                        if(loginSuccess){
+                            Log.d("CU/LOGIN","Login successful, token = ${AuthService.authToken}")
+                            Log.d("CU/LOGIN","Login successful, email = ${AuthService.userEmail}")
+                        }
+                    }
                 }
             }
         }
