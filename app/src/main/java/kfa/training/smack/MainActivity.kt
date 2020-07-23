@@ -1,14 +1,14 @@
 package kfa.training.smack
 
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.content.*
 import android.graphics.Color
 import android.os.Bundle
 import android.view.Gravity
+import android.view.LayoutInflater
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import com.google.android.material.navigation.NavigationView
 import androidx.navigation.findNavController
 import androidx.navigation.ui.navigateUp
@@ -28,6 +28,7 @@ import kfa.training.smack.utilities.BROADCAST_USER_DATA_CHANGE
 import kfa.training.smack.utilities.navigateToFragment
 import kfa.training.smack.utilities.toasty
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.add_channel_dialog.view.*
 import kotlinx.android.synthetic.main.nav_header_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -69,6 +70,8 @@ class MainActivity : AppCompatActivity() {
         // reason of their being no menu.
         setupActionBarWithNavController(navController, drawerLayout)
         navView.setupWithNavController(navController)
+
+        hideKeyboard()
 
         /** Broadcast receiver - following the course and defining it here in the activity, instead
          * of in the main fragment **/
@@ -137,7 +140,34 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun addChannelClicked(view: View) {
-        toasty(this, "Add channel button clicked.")
+       if(AuthService.isLoggedIn){
+           val builder = AlertDialog.Builder(this)
+           val dialogView = layoutInflater.inflate(R.layout.add_channel_dialog, null)
+
+           // Dialog note, when the positive and negative callbacks exit, the dialog is
+           // hidden for us.
+
+           builder.setView(dialogView)
+               .setPositiveButton("Add"){ dialog: DialogInterface?, which: Int ->
+                   // Course deviation, parameter 'i' is now named 'which'.
+                   // Course deviation, findViewById is not required any more.
+                   val nameTextField = dialogView.addChannelNameTxt
+                   val descTextField = dialogView.addChannelDescTxt
+                   val channelName = nameTextField.text.toString()
+                   val channelDesc = descTextField.text.toString()
+
+                   // Create channel with the channel name and description.
+                   // This will be using web sockets, so we will have a continuous open socket
+                   // (full duplex) communication.
+                   hideKeyboard()
+               }
+               .setNegativeButton("Cancel"){ dialog: DialogInterface?, which ->
+                   // Course deviation, parameter 'i' is now named 'which'
+                   // Hide the keyboard!
+                   hideKeyboard()
+               }.show()
+
+       }
     }
     fun loginBtnNavClicked(view: View) {
         /**
@@ -167,5 +197,16 @@ class MainActivity : AppCompatActivity() {
 
     fun sendMsgBtnClicked(view: View) {
         toasty(this, "Send message button clicked.")
+    }
+
+    private fun hideKeyboard(){
+        // We need the input method service so we can manipulate the keyboard input system.
+        // Deviation from course, 'currentFocus' is now a nullable.
+        // BUG This is not working in the main activity, reason unknown.
+        // todo: Find out why the soft keybord is not hiding, and fix!
+        val inputManager = this.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        if (inputManager.isAcceptingText){
+            inputManager.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
+        }
     }
 }

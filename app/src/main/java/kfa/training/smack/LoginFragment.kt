@@ -175,7 +175,8 @@ class LoginFragment : Fragment() {
 
     private fun hideKeyboard(){
         // We need the input method service so we can manipulate the keyboard input system.
-        // Deviation from course, 'activity' and 'currentFocus' are both nullables.
+        // Deviation from course, 'activity' and 'currentFocus' are both nullables inside a
+        // fragment.
         val inputManager = activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         if (inputManager.isAcceptingText){
             inputManager.hideSoftInputFromWindow(activity?.currentFocus?.windowToken, 0)
