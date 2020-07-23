@@ -1,15 +1,19 @@
 package kfa.training.smack
 
+import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import kfa.training.smack.services.AuthService
 import kfa.training.smack.utilities.navigateToFragment
+import kfa.training.smack.utilities.toasty
+import kotlinx.android.synthetic.main.fragment_create_user.*
 import kotlinx.android.synthetic.main.fragment_login.*
 
 /**
@@ -60,6 +64,10 @@ class LoginFragment : Fragment() {
          * buttons:
          * Also, we have to define this here since the view has to have been layed out.
          */
+
+        // Hide our spinner
+        loginSpinner.visibility = View.INVISIBLE
+
         loginLoginBtn.setOnClickListener{
             // Call our callbacks
             loginLoginBtnClicked(it)
@@ -95,22 +103,39 @@ class LoginFragment : Fragment() {
     }
 
     private fun loginLoginBtnClicked(view: View) {
+        enableSpinner(true)
         val email = loginEmailTxt.text.toString()
         val password = loginPasswordTxt.text.toString()
+
+        hideKeyboard()
+
+        if(email.isEmpty() || password.isEmpty()){
+            toasty(context, "Please fill in both email and password.")
+            return
+        }
+
+
         context?.let{
             AuthService.loginUser(it, email, password){loginSuccess ->
                 if(loginSuccess){
                     AuthService.findUserByEmail(it){findSuccess ->
                         if (findSuccess){
-                            // We need to open the draw
+                            enableSpinner(false)
+                            // Deviation from course:
+                            // Draw needs to be open for when we land back in the main fragment.
                             drawerLayout.openDrawer(GravityCompat.START)
 
                             // Deviation from course, we navigate back to the main fragment
                             // via the id action_loginFragment_to_nav_main
                             navigateToFragment(this, R.id.action_loginFragment_to_nav_main)
+                        } else {
+                            // Find user by email failed
+                            errorToast()
                         }
-
                     }
+                } else {
+                    // Login failed
+                    errorToast()
                 }
 
             }
@@ -122,5 +147,38 @@ class LoginFragment : Fragment() {
          * Navigate to the create user fragment
          */
         navigateToFragment(this, R.id.action_loginFragment_to_createUserFragment)
+    }
+
+    private fun errorToast() {
+        // Deviation from course, made use of a previous util function, created for this re-write,
+        // to reduce Toast code.
+        toasty(context, "Something went wrong, please try again.")
+        enableSpinner(false)
+    }
+
+    private fun enableSpinner(enable: Boolean){
+        /**
+         * Show or hide the spinner and disable or enable the buttons.
+         */
+
+        // Course deviation simplified the code further by turning the if into an expression
+        // Also presented here is an oddity, no {}!
+        // Single lines thus don't need them!
+        loginSpinner.visibility = if(enable)
+            View.VISIBLE
+        else
+            View.INVISIBLE
+
+        loginLoginBtn.isEnabled = !enable
+        loginCreateUserBtn.isEnabled = !enable
+    }
+
+    private fun hideKeyboard(){
+        // We need the input method service so we can manipulate the keyboard input system.
+        // Deviation from course, 'activity' and 'currentFocus' are both nullables.
+        val inputManager = activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        if (inputManager.isAcceptingText){
+            inputManager.hideSoftInputFromWindow(activity?.currentFocus?.windowToken, 0)
+        }
     }
 }
