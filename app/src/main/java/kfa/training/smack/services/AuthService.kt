@@ -1,15 +1,14 @@
 package kfa.training.smack.services
 
 import android.content.Context
+import android.content.Intent
 import android.util.Log
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
-import com.android.volley.toolbox.JsonRequest
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
-import kfa.training.smack.utilities.URL_CREATE_USER
-import kfa.training.smack.utilities.URL_LOGIN
-import kfa.training.smack.utilities.URL_REGISTER
+import kfa.training.smack.utilities.*
 import org.json.JSONException
 import org.json.JSONObject
 import java.nio.charset.Charset
@@ -198,4 +197,51 @@ object AuthService {
         // Add to a new request queue.
         Volley.newRequestQueue(context).add(createRequest)
     }
+
+    fun findUserByEmail(context: Context, complete: (Boolean) -> Unit){
+        /**
+         * Find the user by the given email.
+         */
+        val findUserRequest = object: JsonObjectRequest(Method.GET, "$URL_GET_USER$userEmail", null,
+            Response.Listener {response ->
+                try {
+                    UserDataService.name = response.getString("name")
+                    UserDataService.email = response.getString("email")
+                    UserDataService.avatarName = response.getString("avatarName")
+                    UserDataService.avatarColour = response.getString("avatarColor")
+                    // Recall this is _id not id!
+                    UserDataService.id = response.getString("_id")
+
+                    // We have changed user data in UserDataService, so we broadcast this fact.
+                    val userDataChange = Intent(BROADCAST_USER_DATA_CHANGE)
+                    LocalBroadcastManager.getInstance(context).sendBroadcast(userDataChange)
+                    complete(true)
+                } catch (e: JSONException){
+                    Log.d("AUTH/ERROR", "User login error, corrupt JSON response: $e")
+                    complete(false)
+                }
+            },
+            Response.ErrorListener { error ->
+                Log.d("AUTH/ERROR", "Could not log in user due to $error")
+                complete(false)
+            }){
+
+            override fun getHeaders(): MutableMap<String, String> {
+                /*
+                This is a restricted call which requires authentication so we need to provide
+                the basic auth header.
+                 */
+
+                // Deviation from course, using mutableMapOf and 'to' operator you can reduce the
+                // code to this:
+                return mutableMapOf(
+                    "Authorization" to "Bearer $authToken"
+                )
+            }
+        }
+
+        Volley.newRequestQueue(context).add(findUserRequest)
+    }
+
+
 }

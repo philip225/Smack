@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import kfa.training.smack.services.AuthService
 import kfa.training.smack.utilities.navigateToFragment
 import kotlinx.android.synthetic.main.fragment_login.*
 
@@ -67,6 +68,9 @@ class LoginFragment : Fragment() {
             loginCreateUserBtnClicked(it)
         }
 
+        activity?.let{
+            drawerLayout  = it.findViewById(R.id.drawer_layout)
+        }
         super.onViewCreated(view, savedInstanceState)
     }
 
@@ -91,7 +95,26 @@ class LoginFragment : Fragment() {
     }
 
     private fun loginLoginBtnClicked(view: View) {
-        Toast.makeText(context, "LoginFragment: Login button clicked!", Toast.LENGTH_LONG).show()
+        val email = loginEmailTxt.text.toString()
+        val password = loginPasswordTxt.text.toString()
+        context?.let{
+            AuthService.loginUser(it, email, password){loginSuccess ->
+                if(loginSuccess){
+                    AuthService.findUserByEmail(it){findSuccess ->
+                        if (findSuccess){
+                            // We need to open the draw
+                            drawerLayout.openDrawer(GravityCompat.START)
+
+                            // Deviation from course, we navigate back to the main fragment
+                            // via the id action_loginFragment_to_nav_main
+                            navigateToFragment(this, R.id.action_loginFragment_to_nav_main)
+                        }
+
+                    }
+                }
+
+            }
+        }
 
     }
     private fun loginCreateUserBtnClicked(view: View) {

@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Color
 import android.os.Bundle
+import android.view.Gravity
 import android.view.View
 import android.widget.Toast
 import com.google.android.material.navigation.NavigationView
@@ -74,12 +75,11 @@ class MainActivity : AppCompatActivity() {
         LocalBroadcastManager.getInstance(this).registerReceiver(userDataChangedReceiver, IntentFilter(
             BROADCAST_USER_DATA_CHANGE))
 
-
         /**
          * Temporary recycler view setup to see it laid out at runtime in the draw, and to test the
          * recycler works correctly in the draw (including scrolling).
         **/
-        val someItems = mutableListOf<String>()
+        val someItems    = mutableListOf<String>()
         for(ct in 1..20){
             someItems.add("Placeholder item $ct")
         }
@@ -149,7 +149,7 @@ class MainActivity : AppCompatActivity() {
             UserDataService.logout()
 
             // Reset UI
-            userNameNavHeader.text = "Login"
+            userNameNavHeader.text = ""
             userEmailNavHeader.text = ""
             userImageNavHeader.setImageResource(R.drawable.profiledefault)
             userImageNavHeader.setBackgroundColor(Color.TRANSPARENT)
