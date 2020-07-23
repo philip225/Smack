@@ -1,5 +1,10 @@
 package kfa.training.smack
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -12,12 +17,17 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kfa.training.smack.adapters.TemporaryAdapter
+import kfa.training.smack.services.AuthService
+import kfa.training.smack.services.UserDataService
+import kfa.training.smack.utilities.BROADCAST_USER_DATA_CHANGE
 import kfa.training.smack.utilities.navigateToFragment
 import kfa.training.smack.utilities.toasty
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.nav_header_main.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -59,6 +69,12 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, drawerLayout)
         navView.setupWithNavController(navController)
 
+        /** Broadcast receiver - following the course and defining it here in the activity, instead
+         * of in the main fragment **/
+        LocalBroadcastManager.getInstance(this).registerReceiver(userDataChangedReceiver, IntentFilter(
+            BROADCAST_USER_DATA_CHANGE))
+
+
         /**
          * Temporary recycler view setup to see it laid out at runtime in the draw, and to test the
          * recycler works correctly in the draw (including scrolling).
@@ -88,6 +104,26 @@ class MainActivity : AppCompatActivity() {
 //        return true
 //    }
 
+    private val userDataChangedReceiver = object: BroadcastReceiver(){
+        override fun onReceive(context: Context?, intent: Intent?) {
+            /**
+             * This is called when we receive a broadcast, we will only receive a broadcast from
+             * broadcasts sent inside our application for BROADCAST_USER_DATA_CHANGE.
+             */
+            if(AuthService.isLoggedIn){
+                userNameNavHeader.text = UserDataService.name
+                userEmailNavHeader.text = UserDataService.email
+                val resourceId = resources.getIdentifier(UserDataService.avatarName,
+                    "drawable", packageName)
+                userImageNavHeader.setImageResource(resourceId)
+                userImageNavHeader.setBackgroundColor(UserDataService.returnAvatarColour(UserDataService.avatarColour))
+                loginBtnNavHeader.text = "Logout"
+            }
+        }
+
+    }
+
+
     override fun onSupportNavigateUp(): Boolean {
         /**
          * This handles navigation for the draw - showing the draw when the tool button is clicked.
@@ -107,11 +143,26 @@ class MainActivity : AppCompatActivity() {
         /**
          * Deviation from course, we are now using navigation to navigate to our login fragment.
          */
-        // Close the draw!
-        drawerLayout.closeDrawer(GravityCompat.START)
 
-        // You can alternatively do: navigateToFragment(this, R.id.loginFragment)
-        navigateToFragment(this, R.id.action_nav_main_to_loginFragment)
+        if (AuthService.isLoggedIn){
+            // Logout
+            UserDataService.logout()
+
+            // Reset UI
+            userNameNavHeader.text = "Login"
+            userEmailNavHeader.text = ""
+            userImageNavHeader.setImageResource(R.drawable.profiledefault)
+            userImageNavHeader.setBackgroundColor(Color.TRANSPARENT)
+            loginBtnNavHeader.text = "Login"
+
+            // Leave the draw open.
+        } else {
+            // Login
+            // Close the draw (navigation to another fragment, does not close the draw)!
+            drawerLayout.closeDrawer(GravityCompat.START)
+            // You can alternatively do: navigateToFragment(this, R.id.loginFragment)
+            navigateToFragment(this, R.id.action_nav_main_to_loginFragment)
+        }
     }
 
     fun sendMsgBtnClicked(view: View) {

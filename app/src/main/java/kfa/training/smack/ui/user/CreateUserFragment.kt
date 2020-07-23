@@ -208,8 +208,14 @@ class CreateUserFragment : Fragment() {
                                     LocalBroadcastManager.getInstance(context).sendBroadcast(
                                         userDataChanged)
 
-                                    // "Press" the back button.
-                                    activity?.onBackPressed()
+                                    // Deviation from course, navigation works back to main via
+                                    // the login activity. With fragment navigation that makes no
+                                    // sense any more, when we can directly navigate back to the
+                                    // main fragment.
+                                    // Looking at our navigation we want to navigate via the
+                                    // resource action_createUserFragment_to_nav_main
+                                    navigateToFragment(this,
+                                        R.id.action_createUserFragment_to_nav_main)
 
                                 } else {
                                     errorToast()
