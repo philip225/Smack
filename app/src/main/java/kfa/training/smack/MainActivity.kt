@@ -23,8 +23,11 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import io.socket.client.IO
+import io.socket.emitter.Emitter
+import kfa.training.smack.Model.Channel
 import kfa.training.smack.adapters.TemporaryAdapter
 import kfa.training.smack.services.AuthService
+import kfa.training.smack.services.MessageService
 import kfa.training.smack.services.UserDataService
 import kfa.training.smack.utilities.BROADCAST_USER_DATA_CHANGE
 import kfa.training.smack.utilities.SOCKET_URL
@@ -116,6 +119,9 @@ class MainActivity : AppCompatActivity() {
             BROADCAST_USER_DATA_CHANGE))
         // Connect our "WebSocket" socket
         socket.connect()
+        // Hook up our socket listener and listen for 'channelCreated' events.
+        socket.on("channelCreated", onNewChannel)
+
         Log.d("SM/SOCKET", "WebSocket connected.")
 
         /* Security test - This is not part of the course! Setup a bogus channel before we are
@@ -214,6 +220,30 @@ class MainActivity : AppCompatActivity() {
 
        }
     }
+
+    private val onNewChannel = Emitter.Listener { args ->
+        /**
+         * Socket channel listener, called when channels have changed.
+         * Note that this is called on a background worker thread so it does not block the main UI
+         * thread. Unlike the Volley library which switches to the UI thread before calling the
+         * callbacks, this listener callback does not, so remains on that worker thread.
+         */
+
+        // We have to run on the UI thread, however the course does not explain why.
+        // It is odd since Kotlin singletons are thread safe (suspect this is wrong).
+        runOnUiThread {
+            val channelName = args[0] as String
+            val channelDescription = args[1] as String
+            val channelId = args[2] as String
+
+            val newChannel = Channel(channelName, channelDescription, channelId)
+
+            MessageService.channels.add(newChannel)
+            Log.d("LISTEN/NEWCH", "New channel added $channelName")
+        }
+    }
+
+
     fun loginBtnNavClicked(view: View) {
         /**
          * Deviation from course, we are now using navigation to navigate to our login fragment.
