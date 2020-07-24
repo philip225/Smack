@@ -134,13 +134,9 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
     }
 
-    override fun onPause() {
+    override fun onDestroy() {
         // De-register the user data changed receiver.
         LocalBroadcastManager.getInstance(this).unregisterReceiver(userDataChangedReceiver)
-        super.onPause()
-    }
-
-    override fun onDestroy() {
         // Disconnect the socket.
         socket.disconnect()
         Log.d("SM/SOCKET", "WebSocket disconnected.")
