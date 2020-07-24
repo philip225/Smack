@@ -71,8 +71,6 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, drawerLayout)
         navView.setupWithNavController(navController)
 
-        hideKeyboard()
-
         /** Broadcast receiver - following the course and defining it here in the activity, instead
          * of in the main fragment **/
         LocalBroadcastManager.getInstance(this).registerReceiver(userDataChangedReceiver, IntentFilter(
@@ -159,12 +157,11 @@ class MainActivity : AppCompatActivity() {
                    // Create channel with the channel name and description.
                    // This will be using web sockets, so we will have a continuous open socket
                    // (full duplex) communication.
-                   hideKeyboard()
+
                }
                .setNegativeButton("Cancel"){ dialog: DialogInterface?, which ->
                    // Course deviation, parameter 'i' is now named 'which'
-                   // Hide the keyboard!
-                   hideKeyboard()
+
                }.show()
 
        }
@@ -196,6 +193,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun sendMsgBtnClicked(view: View) {
+        hideKeyboard()
         toasty(this, "Send message button clicked.")
     }
 
@@ -203,9 +201,13 @@ class MainActivity : AppCompatActivity() {
         // We need the input method service so we can manipulate the keyboard input system.
         // Deviation from course, 'currentFocus' is now a nullable.
         // BUG This is not working in the main activity, reason unknown.
-        // todo: Find out why the soft keybord is not hiding, and fix!
+        // Course fixes this with a manifest amend, adding property
+        // 'android:windowSoftInputMode="stateAlwaysHidden"' to MainActivity application
+        // definition.
+        // This is now only called when the send message button click event, is processed.
         val inputManager = this.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         if (inputManager.isAcceptingText){
+            // Flags: from research it looks like passing int 0 denotes force hide.
             inputManager.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
         }
     }
