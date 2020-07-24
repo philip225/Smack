@@ -61,6 +61,11 @@ class MainActivity : AppCompatActivity() {
         // top left).
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
+        // Connect our "WebSocket" socket
+        socket.connect()
+        // Hook up our socket listener and listen for 'channelCreated' events.
+        socket.on("channelCreated", onNewChannel)
+
         /* Floating action button is not used in this course.
         val fab: FloatingActionButton = findViewById(R.id.fab)
         fab.setOnClickListener { view ->
@@ -117,10 +122,6 @@ class MainActivity : AppCompatActivity() {
          * of in the main fragment **/
         LocalBroadcastManager.getInstance(this).registerReceiver(userDataChangedReceiver, IntentFilter(
             BROADCAST_USER_DATA_CHANGE))
-        // Connect our "WebSocket" socket
-        socket.connect()
-        // Hook up our socket listener and listen for 'channelCreated' events.
-        socket.on("channelCreated", onNewChannel)
 
         Log.d("SM/SOCKET", "WebSocket connected.")
 
