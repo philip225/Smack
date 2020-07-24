@@ -3,6 +3,7 @@ package kfa.training.smack
 import android.content.*
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -21,10 +22,12 @@ import androidx.core.view.GravityCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import io.socket.client.IO
 import kfa.training.smack.adapters.TemporaryAdapter
 import kfa.training.smack.services.AuthService
 import kfa.training.smack.services.UserDataService
 import kfa.training.smack.utilities.BROADCAST_USER_DATA_CHANGE
+import kfa.training.smack.utilities.SOCKET_URL
 import kfa.training.smack.utilities.navigateToFragment
 import kfa.training.smack.utilities.toasty
 import kotlinx.android.synthetic.main.activity_main.*
@@ -41,6 +44,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var viewAdapter: TemporaryAdapter
     private lateinit var viewManager: RecyclerView.LayoutManager // May not be used.
+
+    // Curiously, duplex socket connections are allowed prior to authentication, which is a
+    // security issue.
+    // See the comment starting "Security test", in this code.
+    val socket = IO.socket(SOCKET_URL)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,11 +79,6 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, drawerLayout)
         navView.setupWithNavController(navController)
 
-        /** Broadcast receiver - following the course and defining it here in the activity, instead
-         * of in the main fragment **/
-        LocalBroadcastManager.getInstance(this).registerReceiver(userDataChangedReceiver, IntentFilter(
-            BROADCAST_USER_DATA_CHANGE))
-
         /**
          * Temporary recycler view setup to see it laid out at runtime in the draw, and to test the
          * recycler works correctly in the draw (including scrolling).
@@ -96,6 +99,52 @@ class MainActivity : AppCompatActivity() {
         // Layout size per cell is not going to change, so we might as well optimise.
         channel_list.setHasFixedSize(true)
         /** END Temporary recycler view setup **/
+    }
+
+    /* onResume not onRestart!
+    onResume is called when the application is resumed from pause or from start, on restart is not
+    called when resuming from a pause, so in that instance, the socket re-connection is not done!
+    override fun onRestart() {
+        super.onRestart()
+    }
+    */
+
+    override fun onResume() {
+        /** Broadcast receiver - following the course and defining it here in the activity, instead
+         * of in the main fragment **/
+        LocalBroadcastManager.getInstance(this).registerReceiver(userDataChangedReceiver, IntentFilter(
+            BROADCAST_USER_DATA_CHANGE))
+        // Connect our "WebSocket" socket
+        socket.connect()
+        Log.d("SM/SOCKET", "WebSocket connected.")
+
+        /* Security test - This is not part of the course! Setup a bogus channel before we are
+        logged in.
+        Result - we can! This is a security flaw!
+        Unfortunately RFC 6455 states that WebSockets use the "useless" origin-based security model
+        (CSRF attack)!
+        What should happen ideally is that as part of the emit, one of the parameters should be an
+        auth token (can be different from the Bearer token) which can be used to authenticate
+        the web socket request, thus allowing the request to be rejected/ignored.
+        */
+        /* Uncomment to see this in action!
+        socket.emit("newChannel", "Dodgy Channel",
+            "I can create channels before logging in!!")
+        */
+        super.onResume()
+    }
+
+    override fun onPause() {
+        // De-register the user data changed receiver.
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(userDataChangedReceiver)
+        super.onPause()
+    }
+
+    override fun onDestroy() {
+        // Disconnect the socket.
+        socket.disconnect()
+        Log.d("SM/SOCKET", "WebSocket disconnected.")
+        super.onDestroy()
     }
 
         // The course does not make use of an options menu.
@@ -155,8 +204,11 @@ class MainActivity : AppCompatActivity() {
                    val channelDesc = descTextField.text.toString()
 
                    // Create channel with the channel name and description.
-                   // This will be using web sockets, so we will have a continuous open socket
-                   // (full duplex) communication.
+                   // This uses a custom WebSocket like library to achieve full duplex
+                   // communication.
+                   // Note that parameter order is important, order is channel name then channel
+                   // description.
+                   socket.emit("newChannel", channelName, channelDesc)
 
                }
                .setNegativeButton("Cancel"){ dialog: DialogInterface?, which ->

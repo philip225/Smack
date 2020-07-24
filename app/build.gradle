@@ -53,9 +53,14 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     // Socket.IO-client library (ported from the Javascript version) for realtime full duplex
-    // socket communication (WebSocket).
+    // socket communication.
     // See https://socket.io/docs/
     // See https://github.com/socketio/socket.io-client-java
+    // IMPORTANT: This is not a WebSocket client, it is a Socket.IO client, so if you are
+    // communicating with a generic WebSocket server, this library will not work!
+    // For generic WebSockets clients that comply to RFC 6455, look at libraries like
+    // https://github.com/TooTallNate/Java-WebSocket
+    // or https://www.oracle.com/technical-resources/articles/java/jsr356.html
     // Deviation from course, 'compile' is deprecated, replaced with 'implementation'
     implementation ('io.socket:socket.io-client:1.0.0') {
         // excluding org.json which is provided by Android
