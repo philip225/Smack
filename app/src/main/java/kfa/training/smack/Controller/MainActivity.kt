@@ -33,6 +33,7 @@ import kfa.training.smack.utilities.navigateToFragment
 import kfa.training.smack.utilities.toasty
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.add_channel_dialog.view.*
+import kotlinx.android.synthetic.main.fragment_main.*
 import kotlinx.android.synthetic.main.nav_header_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -41,11 +42,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var drawerLayout: DrawerLayout
 
     // Main activity will handle the recycler views as per the course.
-    // These variables are temporary and will be updated in lesson 88. Download Channels.
-    private lateinit var recyclerView: RecyclerView
-    //private lateinit var viewAdapter: TemporaryAdapter
+    private var selectedChannel: Channel? = null
+
     private lateinit var channelAdapter: ChannelAdapter
-    private lateinit var viewManager: RecyclerView.LayoutManager // May not be used.
 
     // Curiously, duplex socket connections are allowed prior to authentication, which is a
     // security issue.
@@ -53,10 +52,17 @@ class MainActivity : AppCompatActivity() {
     val socket = IO.socket(SOCKET_URL)
 
     private fun setupAdapters(){
+        /**
+         * Setup our adapter, deviation from course, we setup the callback listener here since we
+         * are using a recycler view.
+         * The callback is simpler than in the course, it returns a Channel object, so we do
+         * not need to fish one out from MessageService.
+         */
         channelAdapter = ChannelAdapter(this, drawerLayout,
             MessageService.channels){channel ->
-            // Callback for a channel that has been clicked (draw has also been closed).
-            toasty(this, "Channel ${channel.name} clicked on.")
+            // Callback for a channel that has been clicked (draw has already been closed for us).
+            selectedChannel = channel
+            updateWithChannel()
         }
         // Set our adapter.
         channel_list.adapter = channelAdapter
@@ -75,13 +81,6 @@ class MainActivity : AppCompatActivity() {
         // Hook up our socket listener and listen for 'channelCreated' events.
         socket.on("channelCreated", onNewChannel)
 
-        /* Floating action button is not used in this course.
-        val fab: FloatingActionButton = findViewById(R.id.fab)
-        fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
-        }
-         */
         // Notice drawerLayout is now global, this is needed else ware.
         drawerLayout  = findViewById(R.id.drawer_layout)
         val navView: NavigationView = findViewById(R.id.nav_view)
@@ -102,30 +101,7 @@ class MainActivity : AppCompatActivity() {
             AuthService.findUserByEmail(this){}
         }
 
-        /**
-         * Temporary recycler view setup to see it laid out at runtime in the draw, and to test the
-         * recycler works correctly in the draw (including scrolling).
-        **/
-        /*
-        val someItems = mutableListOf<String>()
-        for(ct in 1..20){
-            someItems.add("Placeholder item $ct")
-        }
-
-        recyclerView = channel_list
-        // Kotlin will smart cast someItems to immutable.
-        viewAdapter = TemporaryAdapter(this, drawerLayout, someItems){
-            Toast.makeText(this, "Draw item clicked! :: $it", Toast.LENGTH_LONG).show()
-        }
-        channel_list.adapter = viewAdapter
-        // Remember the layout!
-        channel_list.layoutManager = LinearLayoutManager(this)
-        // Layout size per cell is not going to change, so we might as well optimise.
-        channel_list.setHasFixedSize(true)
-        */
-        /** END Temporary recycler view setup **/
-
-        // Real adapter!
+        // Adapter
         // Deviation from course.
         // This is a jump ahead for the course, in the course for part 88 a simple array adapter is
         // used and setup here.
@@ -138,15 +114,11 @@ class MainActivity : AppCompatActivity() {
         // Finally to speed up loading further, we know the layout is not going to change so we
         // indicate this.
         channel_list.setHasFixedSize(true)
-    }
 
-    /* onResume not onRestart!
-    onResume is called when the application is resumed from pause or from start, on restart is not
-    called when resuming from a pause, so in that instance, the socket re-connection is not done!
-    override fun onRestart() {
-        super.onRestart()
+        // Deviation from course, we do not setup a global listener, it is already setup in
+        // setupAdapters()
+
     }
-    */
 
     override fun onResume() {
         /** Broadcast receiver - following the course and defining it here in the activity, instead
@@ -181,18 +153,13 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
     }
 
-        // The course does not make use of an options menu.
-//    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-//        // Inflate the menu; this adds items to the action bar if it is present.
-//        menuInflater.inflate(R.menu.main, menu)
-//        return true
-//    }
-
     private val userDataChangedReceiver = object: BroadcastReceiver(){
         override fun onReceive(context: Context?, intent: Intent?) {
             /**
              * This is called when we receive a broadcast, we will only receive a broadcast from
              * broadcasts sent inside our application for BROADCAST_USER_DATA_CHANGE.
+             * BROADCAST_USER_DATA_CHANGE is emitted in code that processes user login and user
+             * creation.
              */
             if(App.prefs.isLoggedIn){
                 userNameNavHeader.text = UserDataService.name
@@ -205,22 +172,40 @@ class MainActivity : AppCompatActivity() {
 
                 // We need some actual channels ('context' is capture closed, hence not using 'it').
                 context?.let{
-                    MessageService.getChannels(){ complete->
+                    MessageService.getChannels { complete->
                         if(complete){
                             // We have zero or more channels to show, we can setup our adapter!
+                            // Course deviation, we setup the adapter here since we need to
+                            // setup callbacks on initalisation.
                             setupAdapters()
+
                             // We do not need to notify a change in the data set since we have
-                            // just setup the channel.
+                            // just setup the channel adapter.
+
+                            if(MessageService.channels.count() > 0){
+                                // We have channels, we default to the first channel.
+                                selectedChannel = MessageService.channels[0]
+                                updateWithChannel()
+                            }
                         } else {
                             // ERROR!
                             toasty(context,
-                                "Unable to load the channels, please try again.")
+                                "Unable to load the channels.")
                         }
                     }
                 }
             }
         }
     }
+
+    fun updateWithChannel(){
+        /**
+         * Change channel layout view main text to the channel name and
+         * download the messages, for the channel.
+         */
+        mainChannelName.text = "#${selectedChannel?.name}"
+    }
+
 
     override fun onSupportNavigateUp(): Boolean {
         /**
@@ -243,8 +228,9 @@ class MainActivity : AppCompatActivity() {
            // hidden for us.
 
            builder.setView(dialogView)
-               .setPositiveButton("Add"){ dialog: DialogInterface?, which: Int ->
-                   // Course deviation, parameter 'i' is now named 'which'.
+               .setPositiveButton("Add"){ _: DialogInterface?, _: Int ->
+                   // Course deviation, parameter 'i' is now named 'which' (both parameters replaced
+                   // with '_', since we do not use them).
                    // Course deviation, findViewById is not required any more.
                    val nameTextField = dialogView.addChannelNameTxt
                    val descTextField = dialogView.addChannelDescTxt

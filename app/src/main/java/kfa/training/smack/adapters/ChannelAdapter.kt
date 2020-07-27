@@ -10,9 +10,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.RecyclerView
 import kfa.training.smack.Model.Channel
 import kfa.training.smack.R
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.channel_list.view.*
-import kotlinx.android.synthetic.main.temporary_recycler_layout.view.*
 
 /**
  * Deviation from course.

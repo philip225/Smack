@@ -16,7 +16,8 @@ Course deviation, this was originally in activity_main, now moved to this
         android:layout_marginTop="8dp"
         android:text="Please log in."
         android:textAlignment="center"
-        android:textSize="20sp"
+        android:textSize="18sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
