@@ -4,11 +4,8 @@ import android.content.*
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
-import android.view.Gravity
-import android.view.LayoutInflater
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.navigation.NavigationView
 import androidx.navigation.findNavController
@@ -25,7 +22,7 @@ import androidx.recyclerview.widget.RecyclerView
 import io.socket.client.IO
 import io.socket.emitter.Emitter
 import kfa.training.smack.Model.Channel
-import kfa.training.smack.adapters.TemporaryAdapter
+import kfa.training.smack.adapters.ChannelAdapter
 import kfa.training.smack.services.AuthService
 import kfa.training.smack.services.MessageService
 import kfa.training.smack.services.UserDataService
@@ -45,13 +42,24 @@ class MainActivity : AppCompatActivity() {
     // Main activity will handle the recycler views as per the course.
     // These variables are temporary and will be updated in lesson 88. Download Channels.
     private lateinit var recyclerView: RecyclerView
-    private lateinit var viewAdapter: TemporaryAdapter
+    //private lateinit var viewAdapter: TemporaryAdapter
+    private lateinit var channelAdapter: ChannelAdapter
     private lateinit var viewManager: RecyclerView.LayoutManager // May not be used.
 
     // Curiously, duplex socket connections are allowed prior to authentication, which is a
     // security issue.
     // See the comment starting "Security test", in this code.
     val socket = IO.socket(SOCKET_URL)
+
+    private fun setupAdapters(){
+        channelAdapter = ChannelAdapter(this, drawerLayout,
+            MessageService.channels){channel ->
+            // Callback for a channel that has been clicked (draw has also been closed).
+            toasty(this, "Channel ${channel.name} clicked on.")
+        }
+        // Set our adapter.
+        channel_list.adapter = channelAdapter
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -91,7 +99,8 @@ class MainActivity : AppCompatActivity() {
          * Temporary recycler view setup to see it laid out at runtime in the draw, and to test the
          * recycler works correctly in the draw (including scrolling).
         **/
-        val someItems    = mutableListOf<String>()
+        /*
+        val someItems = mutableListOf<String>()
         for(ct in 1..20){
             someItems.add("Placeholder item $ct")
         }
@@ -106,7 +115,22 @@ class MainActivity : AppCompatActivity() {
         channel_list.layoutManager = LinearLayoutManager(this)
         // Layout size per cell is not going to change, so we might as well optimise.
         channel_list.setHasFixedSize(true)
+        */
         /** END Temporary recycler view setup **/
+
+        // Real adapter!
+        // Deviation from course.
+        // This is a jump ahead for the course, in the course for part 88 a simple array adapter is
+        // used and setup here.
+        // We have a fully fledged adapter with callback, since we have no data and cannot load
+        // data here, we cannot setup the adapter here, thus setupAdapter is not called here.
+
+        // Setup our layout.
+        channel_list.layoutManager = LinearLayoutManager(this)
+
+        // Finally to speed up loading further, we know the layout is not going to change so we
+        // indicate this.
+        channel_list.setHasFixedSize(true)
     }
 
     /* onResume not onRestart!
@@ -171,11 +195,25 @@ class MainActivity : AppCompatActivity() {
                 userImageNavHeader.setImageResource(resourceId)
                 userImageNavHeader.setBackgroundColor(UserDataService.returnAvatarColour(UserDataService.avatarColour))
                 loginBtnNavHeader.text = "Logout"
+
+                // We need some actual channels ('context' is capture closed, hence not using 'it').
+                context?.let{
+                    MessageService.getChannels(context){complete->
+                        if(complete){
+                            // We have zero or more channels to show, we can setup our adapter!
+                            setupAdapters()
+                            // We do not need to notify a change in the data set since we have
+                            // just setup the channel.
+                        } else {
+                            // ERROR!
+                            toasty(context,
+                                "Unable to load the channels, please try again.")
+                        }
+                    }
+                }
             }
         }
-
     }
-
 
     override fun onSupportNavigateUp(): Boolean {
         /**
@@ -240,7 +278,8 @@ class MainActivity : AppCompatActivity() {
             val newChannel = Channel(channelName, channelDescription, channelId)
 
             MessageService.channels.add(newChannel)
-            Log.d("LISTEN/NEWCH", "New channel added $channelName")
+            // Notify our data set has changed.
+            channelAdapter.notifyDataSetChanged()
         }
     }
 

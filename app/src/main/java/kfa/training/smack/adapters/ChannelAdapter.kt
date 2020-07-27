@@ -1,45 +1,50 @@
 package kfa.training.smack.adapters
 
 import android.content.Context
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.RecyclerView
 import kfa.training.smack.Model.Channel
+import kfa.training.smack.R
+import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.channel_list.view.*
 import kotlinx.android.synthetic.main.temporary_recycler_layout.view.*
 
 /**
  * Deviation from course.
- * The channel list uses a recycler view, so we provide a channel adapter for the
- * channel list we get from the MessageService.
+ * The channel list uses a recycler view, so we provide a recycler channel adapter for the
+ * channel list.
  */
-class ChannelAdapter(private val context: Context, val drawLayout: DrawerLayout, val channels: ArrayList<Channel>, val callback: (item: String) -> Unit): RecyclerView.Adapter<ChannelAdapter.Holder>() {
+class ChannelAdapter(val context: Context, val drawLayout: DrawerLayout, val channels: ArrayList<Channel>, val callback: (item: Channel) -> Unit): RecyclerView.Adapter<ChannelAdapter.Holder>() {
 
     inner class Holder(itemView: View): RecyclerView.ViewHolder(itemView){
-        /*
-        val temporaryTextView = itemView.temporaryTextView
+        private val channelTextView: TextView = itemView.channelNameTxt
 
-        fun bindView(textItem: String){
-            temporaryTextView.text = textItem
-            temporaryTextView.setOnClickListener {
-                // We have customised the draw, so we need to manually
-                // close the draw
+        fun bindView(channel: Channel){
+            channelTextView.text = "#${channel.name}"
+            channelTextView.setOnClickListener {
+                // Close the RH draw!
                 drawLayout.closeDrawer(GravityCompat.START)
-                callback(textItem)
+                callback(channel)
             }
-        }*/
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
-        TODO("Not yet implemented")
+        val view = LayoutInflater.from(context)
+            .inflate(R.layout.channel_list, parent, false)
+        return Holder(view)
     }
 
     override fun getItemCount(): Int {
-        TODO("Not yet implemented")
+        return channels.count()
     }
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
-        TODO("Not yet implemented")
+        return holder.bindView(channels[position])
     }
 }

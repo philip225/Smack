@@ -16,7 +16,7 @@
     </fragment>
     <fragment
         android:id="@+id/loginFragment"
-        android:name="kfa.training.smack.LoginFragment"
+        android:name="kfa.training.smack.ui.user.LoginFragment"
         android:label="Login"
         tools:layout="@layout/fragment_login">
         <action

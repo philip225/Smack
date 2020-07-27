@@ -2,14 +2,19 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="kfa.training.smack">
     <uses-permission android:name="android.permission.INTERNET"/>
-
+    <!--
+     Deviation from course, we have to allow a security override for API 28+, see
+     res/xml/security_clear_text.xml for details.
+     -->
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:networkSecurityConfig="@xml/security_clear_text"
+        >
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
