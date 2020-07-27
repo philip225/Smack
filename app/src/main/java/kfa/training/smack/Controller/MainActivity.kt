@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView
 import io.socket.client.IO
 import io.socket.emitter.Emitter
 import kfa.training.smack.Model.Channel
+import kfa.training.smack.Model.Message
 import kfa.training.smack.R
 import kfa.training.smack.adapters.ChannelAdapter
 import kfa.training.smack.services.AuthService
@@ -80,8 +81,9 @@ class MainActivity : AppCompatActivity() {
         socket.connect()
         // Hook up our socket listener and listen for 'channelCreated' events.
         socket.on("channelCreated", onNewChannel)
+        socket.on("messageCreated", onNewMessage)
 
-        // Notice drawerLayout is now global, this is needed else ware.
+        // Notice drawerLayout is now global, this is needed elsewhere.
         drawerLayout  = findViewById(R.id.drawer_layout)
         val navView: NavigationView = findViewById(R.id.nav_view)
         val navController = findNavController(R.id.nav_host_fragment)
@@ -276,6 +278,26 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private val onNewMessage = Emitter.Listener {args ->
+        runOnUiThread {
+            val msgBody = args[0] as String
+            // We skip args[1] since we do not make use of the message id.
+            val channelId = args[2] as String
+            val userName = args[3] as String
+            val userAvatar = args[4] as String
+            val userAvatarColour = args[5] as String
+            val id = args[6] as String
+            val timeStamp = args[7] as String
+
+            val newMessage = Message(msgBody, userName, channelId, userAvatar, userAvatarColour,
+                id, timeStamp)
+
+            MessageService.messages.add(newMessage)
+            Log.d("SM/MESSAGE", "New message receaved ${newMessage.message}")
+        }
+
+    }
+
 
     fun loginBtnNavClicked(view: View) {
         /**
@@ -306,8 +328,21 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun sendMsgBtnClicked(view: View) {
-        hideKeyboard()
-        toasty(this, "Send message button clicked.")
+
+        if(App.prefs.isLoggedIn && messageTextField.text.isNotEmpty() && selectedChannel != null){
+            val userId = UserDataService.id
+            // The one rare example where you can use a !! operator since we know selectedChannel is
+            // not null.
+            val channelId = selectedChannel!!.id
+            // As before, be careful, the order of the parameters is important!
+            // Also as previously noted this again is a potential security issue, if you have access
+            // to a channel ID you may be able to send spurious messages with bogus user IDs (not
+            // tested this out).
+            socket.emit("newMessage", messageTextField.text.toString(), userId, channelId,
+                UserDataService.name, UserDataService.avatarName, UserDataService.avatarColour)
+            messageTextField.text.clear()
+            hideKeyboard()
+        }
     }
 
     private fun hideKeyboard(){

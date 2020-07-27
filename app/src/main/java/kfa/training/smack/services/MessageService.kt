@@ -6,6 +6,7 @@ import com.android.volley.Response
 import com.android.volley.toolbox.JsonArrayRequest
 import kfa.training.smack.Controller.App
 import kfa.training.smack.Model.Channel
+import kfa.training.smack.Model.Message
 import kfa.training.smack.utilities.URL_GET_CHANNELS
 import org.json.JSONException
 
@@ -14,6 +15,7 @@ object MessageService {
      * Handles the storing and processing of channels.
      */
     val channels = ArrayList<Channel>()
+    val messages = ArrayList<Message>()
 
     fun getChannels(complete: (Boolean) -> Unit){
         val channelsRequest = object: JsonArrayRequest(Method.GET, URL_GET_CHANNELS, null, Response.Listener {response ->
