@@ -120,13 +120,13 @@ class CreateUserFragment : Fragment() {
         // This code is a bit messy, many many else/ifs, todo look into re-factoring.
         context?.let{context ->
             AuthService.registerUser(
-                context, email,password
+                email,password
             ){registerSuccess ->
                 if(registerSuccess){
-                    AuthService.loginUser(context, email, password){loginSuccess ->
+                    AuthService.loginUser(email, password){ loginSuccess ->
                         if(loginSuccess){
                             AuthService.createUser(
-                                context, userName, email,userAvatar, avatarColor
+                                userName, email,userAvatar, avatarColor
                             ){createSuccess ->
                                 if(createSuccess){
                                     /*

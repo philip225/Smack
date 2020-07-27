@@ -77,7 +77,7 @@ class LoginFragment : Fragment() {
 
 
         context?.let{
-            AuthService.loginUser(it, email, password){loginSuccess ->
+            AuthService.loginUser(email, password){ loginSuccess ->
                 if(loginSuccess){
                     AuthService.findUserByEmail(it){findSuccess ->
                         if (findSuccess){

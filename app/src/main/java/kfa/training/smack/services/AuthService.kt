@@ -20,7 +20,7 @@ object AuthService {
 //    var userEmail = ""
 //    var authToken = ""
 
-    fun registerUser(context: Context, email: String, password:String, complete:(Boolean) -> Unit){
+    fun registerUser(email: String, password:String, complete:(Boolean) -> Unit){
         /**
          * Register a user.
          */
@@ -66,7 +66,7 @@ object AuthService {
         App.prefs.requestQueue.add(registerRequest)
     }
 
-    fun loginUser(context: Context, email: String, password:String, complete:(Boolean) -> Unit){
+    fun loginUser(email: String, password:String, complete:(Boolean) -> Unit){
         /**
          * Login a user
          */
@@ -123,8 +123,9 @@ object AuthService {
         App.prefs.requestQueue.add(loginRequest)
     }
 
-    fun createUser(context: Context, name: String, email: String, avatarName: String,
-                   avatarColour: String, complete: (Boolean) -> Unit){
+    fun createUser(
+        name: String, email: String, avatarName: String,
+        avatarColour: String, complete: (Boolean) -> Unit){
         /**
          * Create the user.
          */

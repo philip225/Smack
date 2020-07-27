@@ -205,7 +205,7 @@ class MainActivity : AppCompatActivity() {
 
                 // We need some actual channels ('context' is capture closed, hence not using 'it').
                 context?.let{
-                    MessageService.getChannels(context){complete->
+                    MessageService.getChannels(){ complete->
                         if(complete){
                             // We have zero or more channels to show, we can setup our adapter!
                             setupAdapters()
