@@ -1,4 +1,4 @@
-package kfa.training.smack
+package kfa.training.smack.Controller
 
 import android.content.*
 import android.graphics.Color
@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView
 import io.socket.client.IO
 import io.socket.emitter.Emitter
 import kfa.training.smack.Model.Channel
+import kfa.training.smack.R
 import kfa.training.smack.adapters.ChannelAdapter
 import kfa.training.smack.services.AuthService
 import kfa.training.smack.services.MessageService
@@ -94,6 +95,12 @@ class MainActivity : AppCompatActivity() {
         // reason of their being no menu.
         setupActionBarWithNavController(navController, drawerLayout)
         navView.setupWithNavController(navController)
+
+        // Check to see if we are already logged in.
+        if (App.prefs.isLoggedIn){
+            // Simply calling findUserByEmail will populate the UserDataService
+            AuthService.findUserByEmail(this){}
+        }
 
         /**
          * Temporary recycler view setup to see it laid out at runtime in the draw, and to test the
@@ -187,7 +194,7 @@ class MainActivity : AppCompatActivity() {
              * This is called when we receive a broadcast, we will only receive a broadcast from
              * broadcasts sent inside our application for BROADCAST_USER_DATA_CHANGE.
              */
-            if(AuthService.isLoggedIn){
+            if(App.prefs.isLoggedIn){
                 userNameNavHeader.text = UserDataService.name
                 userEmailNavHeader.text = UserDataService.email
                 val resourceId = resources.getIdentifier(UserDataService.avatarName,
@@ -228,7 +235,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun addChannelClicked(view: View) {
-       if(AuthService.isLoggedIn){
+       if(App.prefs.isLoggedIn){
            val builder = AlertDialog.Builder(this)
            val dialogView = layoutInflater.inflate(R.layout.add_channel_dialog, null)
 
@@ -289,7 +296,7 @@ class MainActivity : AppCompatActivity() {
          * Deviation from course, we are now using navigation to navigate to our login fragment.
          */
 
-        if (AuthService.isLoggedIn){
+        if (App.prefs.isLoggedIn){
             // Logout
             UserDataService.logout()
 
@@ -306,7 +313,9 @@ class MainActivity : AppCompatActivity() {
             // Close the draw (navigation to another fragment, does not close the draw)!
             drawerLayout.closeDrawer(GravityCompat.START)
             // You can alternatively do: navigateToFragment(this, R.id.loginFragment)
-            navigateToFragment(this, R.id.action_nav_main_to_loginFragment)
+            navigateToFragment(this,
+                R.id.action_nav_main_to_loginFragment
+            )
         }
     }
 

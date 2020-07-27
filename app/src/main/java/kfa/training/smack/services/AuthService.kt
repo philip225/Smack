@@ -7,7 +7,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
-import com.android.volley.toolbox.Volley
+import kfa.training.smack.Controller.App
 import kfa.training.smack.utilities.*
 import org.json.JSONException
 import org.json.JSONObject
@@ -15,10 +15,10 @@ import java.nio.charset.Charset
 
 // Defined as a singleton object, since we do not want >1 instantiated AuthService.
 object AuthService {
-
-    var isLoggedIn = false
-    var userEmail = ""
-    var authToken = ""
+//
+//    var isLoggedIn = false
+//    var userEmail = ""
+//    var authToken = ""
 
     fun registerUser(context: Context, email: String, password:String, complete:(Boolean) -> Unit){
         /**
@@ -63,7 +63,7 @@ object AuthService {
         }
 
         // Add our request to a new request queue
-        Volley.newRequestQueue(context).add(registerRequest)
+        App.prefs.requestQueue.add(registerRequest)
     }
 
     fun loginUser(context: Context, email: String, password:String, complete:(Boolean) -> Unit){
@@ -85,9 +85,9 @@ object AuthService {
             // The email is in the 'user' field NOT the 'email' field!
 
             try{
-                userEmail = response.getString("user")
-                authToken = response.getString("token")
-                isLoggedIn = true
+                App.prefs.userEmail = response.getString("user")
+                App.prefs.authToken = response.getString("token")
+                App.prefs.isLoggedIn = true
                 complete(true)
             } catch (e: JSONException){
                 // This suggests the back end API has changed!
@@ -120,7 +120,7 @@ object AuthService {
         }
 
         // Add to a new request queue.
-        Volley.newRequestQueue(context).add(loginRequest)
+        App.prefs.requestQueue.add(loginRequest)
     }
 
     fun createUser(context: Context, name: String, email: String, avatarName: String,
@@ -188,21 +188,21 @@ object AuthService {
                 // Deviation from course, using mutableMapOf and 'to' operator you can reduce the
                 // code to this:
                 return mutableMapOf(
-                    "Authorization" to "Bearer $authToken"
+                    "Authorization" to "Bearer ${App.prefs.authToken}"
                 )
             }
 
         }
 
         // Add to a new request queue.
-        Volley.newRequestQueue(context).add(createRequest)
+        App.prefs.requestQueue.add(createRequest)
     }
 
     fun findUserByEmail(context: Context, complete: (Boolean) -> Unit){
         /**
          * Find the user by the given email.
          */
-        val findUserRequest = object: JsonObjectRequest(Method.GET, "$URL_GET_USER$userEmail", null,
+        val findUserRequest = object: JsonObjectRequest(Method.GET, "$URL_GET_USER${App.prefs.userEmail}", null,
             Response.Listener {response ->
                 try {
                     UserDataService.name = response.getString("name")
@@ -235,12 +235,12 @@ object AuthService {
                 // Deviation from course, using mutableMapOf and 'to' operator you can reduce the
                 // code to this:
                 return mutableMapOf(
-                    "Authorization" to "Bearer $authToken"
+                    "Authorization" to "Bearer ${App.prefs.authToken}"
                 )
             }
         }
 
-        Volley.newRequestQueue(context).add(findUserRequest)
+        App.prefs.requestQueue.add(findUserRequest)
     }
 
 

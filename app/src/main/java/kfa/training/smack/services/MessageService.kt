@@ -4,7 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonArrayRequest
-import com.android.volley.toolbox.Volley
+import kfa.training.smack.Controller.App
 import kfa.training.smack.Model.Channel
 import kfa.training.smack.utilities.URL_GET_CHANNELS
 import org.json.JSONException
@@ -52,12 +52,12 @@ object MessageService {
             override fun getHeaders(): MutableMap<String, String> {
                 // Course deviation, used hashMapOf with 'to' operator to save on lines.
                 val headers = hashMapOf(
-                    "Authorization" to "Bearer ${AuthService.authToken}"
+                    "Authorization" to "Bearer ${App.prefs.authToken}"
                 )
                 return headers
             }
         }
         // Volley request!
-        Volley.newRequestQueue(context).add(channelsRequest)
+        App.prefs.requestQueue.add(channelsRequest)
     }
 }

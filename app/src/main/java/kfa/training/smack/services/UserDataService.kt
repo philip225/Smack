@@ -1,6 +1,7 @@
 package kfa.training.smack.services
 
 import android.graphics.Color
+import kfa.training.smack.Controller.App
 import org.json.JSONArray
 import org.json.JSONException
 
@@ -18,9 +19,9 @@ object UserDataService {
         avatarName = ""
         email = ""
         name = ""
-        AuthService.authToken = ""
-        AuthService.userEmail = ""
-        AuthService.isLoggedIn = false
+        App.prefs.authToken = ""
+        App.prefs.userEmail = ""
+        App.prefs.isLoggedIn = false
     }
 
 
