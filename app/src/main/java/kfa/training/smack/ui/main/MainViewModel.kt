@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
+/* It looks like this is going to come into play! */
 class MainViewModel : ViewModel() {
 
     private val _text = MutableLiveData<String>().apply {

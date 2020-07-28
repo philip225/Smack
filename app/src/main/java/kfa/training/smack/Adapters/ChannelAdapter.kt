@@ -1,4 +1,4 @@
-package kfa.training.smack.adapters
+package kfa.training.smack.Adapters
 
 import android.content.Context
 import android.view.LayoutInflater

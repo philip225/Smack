@@ -4,8 +4,10 @@ import android.content.*
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.navigation.NavigationView
 import androidx.navigation.findNavController
@@ -18,13 +20,13 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import io.socket.client.IO
 import io.socket.emitter.Emitter
 import kfa.training.smack.Model.Channel
 import kfa.training.smack.Model.Message
 import kfa.training.smack.R
-import kfa.training.smack.adapters.ChannelAdapter
+import kfa.training.smack.Adapters.ChannelAdapter
+import kfa.training.smack.Adapters.MessageAdapter
 import kfa.training.smack.services.AuthService
 import kfa.training.smack.services.MessageService
 import kfa.training.smack.services.UserDataService
@@ -35,6 +37,7 @@ import kfa.training.smack.utilities.toasty
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.add_channel_dialog.view.*
 import kotlinx.android.synthetic.main.fragment_main.*
+import kotlinx.android.synthetic.main.fragment_main.view.*
 import kotlinx.android.synthetic.main.nav_header_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -46,6 +49,7 @@ class MainActivity : AppCompatActivity() {
     private var selectedChannel: Channel? = null
 
     private lateinit var channelAdapter: ChannelAdapter
+    private lateinit var messageAdapter: MessageAdapter
 
     // Curiously, duplex socket connections are allowed prior to authentication, which is a
     // security issue.
@@ -59,14 +63,25 @@ class MainActivity : AppCompatActivity() {
          * The callback is simpler than in the course, it returns a Channel object, so we do
          * not need to fish one out from MessageService.
          */
-        channelAdapter = ChannelAdapter(this, drawerLayout,
-            MessageService.channels){channel ->
-            // Callback for a channel that has been clicked (draw has already been closed for us).
-            selectedChannel = channel
-            updateWithChannel()
-        }
+
+        channelAdapter = ChannelAdapter(
+                this, drawerLayout,
+                MessageService.channels
+            ) { channel ->
+                // Callback for a channel that has been clicked (draw has already been closed for us).
+                selectedChannel = channel
+                updateWithChannel()
+            }
         // Set our adapter.
         channel_list.adapter = channelAdapter
+        channel_list.layoutManager = LinearLayoutManager(this)
+        channel_list.setHasFixedSize(true)
+
+        // Message adapter
+        messageAdapter = MessageAdapter(this, MessageService.messages)
+        mainFragment.messageListView.adapter = messageAdapter
+        mainFragment.messageListView.layoutManager = LinearLayoutManager(this)
+        messageAdapter.notifyDataSetChanged()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -102,20 +117,6 @@ class MainActivity : AppCompatActivity() {
             // Simply calling findUserByEmail will populate the UserDataService
             AuthService.findUserByEmail(this){}
         }
-
-        // Adapter
-        // Deviation from course.
-        // This is a jump ahead for the course, in the course for part 88 a simple array adapter is
-        // used and setup here.
-        // We have a fully fledged adapter with callback, since we have no data and cannot load
-        // data here, we cannot setup the adapter here, thus setupAdapter is not called here.
-
-        // Setup our layout.
-        channel_list.layoutManager = LinearLayoutManager(this)
-
-        // Finally to speed up loading further, we know the layout is not going to change so we
-        // indicate this.
-        channel_list.setHasFixedSize(true)
 
         // Deviation from course, we do not setup a global listener, it is already setup in
         // setupAdapters()
@@ -205,13 +206,41 @@ class MainActivity : AppCompatActivity() {
          * Change channel layout view main text to the channel name and
          * download the messages, for the channel.
          */
-        mainChannelName.text = "#${selectedChannel?.name}"
+        // Deviation from course, we want to close the draw so we can see the channel list.
+        drawerLayout.closeDrawer(GravityCompat.START)
+
         if(selectedChannel != null){
+            // BUG! UI elements are not updating when logging out then back in, in the _same_
+            // session.
+            // UI updates in fragmentMain fine, but cannot be updated from MainActivity any more
+            // after logout/in.
+            // Suspect we have a synthetic reference issue where the synthetic is left pointing
+            // to a detached fragment_main fragment, when we navigate away to the login fragment.
+
+            mainChannelName.text = "#${selectedChannel!!.name}" // this fails
+// All code below fails.
+//            mainFragment.mainChannelName.text = "#${selectedChannel!!.name}" // this also fails
+//
+//            // So lets inflate fragment_main and try again directly - still fails!
+//            val frag = LayoutInflater.from(this).inflate(R.layout.fragment_main, findViewById(R.id.mainFragment), false)
+//            frag.findViewById<TextView>(R.id.mainChannelName).text = "#${selectedChannel!!.name}"
+
+            // OK, a lot is made of using data model binding, I suspect that this is how this
+            // should be done and the MainActivity should be communicating to the mainFragment
+            // via UI data binding models.
+            // Use of synthetics I suspect is not the right way, when intercommunicating between
+            // activities and fragments.
+            // See: https://www.raywenderlich.com/1364094-android-fragments-tutorial-an-introduction-with-kotlin
+
+
             // Use of !! is acceptable here, since we know selectedChannel will be set.
             MessageService.getMessages(selectedChannel!!.id){complete ->
                 if(complete){
-                    for(message in MessageService.messages){
-                        Log.d("SM/MSGS", message.message)
+                    messageAdapter.notifyDataSetChanged()
+                    // Scroll to the bottom
+                    if(messageAdapter.itemCount > 0){
+                        // Scroll to the last message by index.
+                        messageListView.smoothScrollToPosition(messageAdapter.itemCount - 1)
                     }
                 }
             }
@@ -286,7 +315,6 @@ class MainActivity : AppCompatActivity() {
                         val channelDescription = args[1] as String
 
                         val newChannel = Channel(channelName, channelDescription, channelId)
-
                         MessageService.channels.add(newChannel)
                     }
                 }
@@ -309,7 +337,8 @@ class MainActivity : AppCompatActivity() {
                 id, timeStamp)
 
             MessageService.messages.add(newMessage)
-            Log.d("SM/MESSAGE", "New message receaved ${newMessage.message}")
+            messageAdapter.notifyDataSetChanged()
+            messageListView.smoothScrollToPosition(messageAdapter.itemCount - 1)
         }
 
     }
@@ -324,12 +353,20 @@ class MainActivity : AppCompatActivity() {
             // Logout
             UserDataService.logout()
 
+            // Data has been cleared out so we notify the channel and message adapters of this
+            // change, so the channels and messages are cleared.
+            channelAdapter.notifyDataSetChanged()
+            messageAdapter.notifyDataSetChanged()
+
             // Reset UI
             userNameNavHeader.text = ""
             userEmailNavHeader.text = ""
             userImageNavHeader.setImageResource(R.drawable.profiledefault)
             userImageNavHeader.setBackgroundColor(Color.TRANSPARENT)
             loginBtnNavHeader.text = "Login"
+
+            mainChannelName.text = "Please log IN."
+
 
             // Leave the draw open.
         } else {
