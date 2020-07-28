@@ -206,8 +206,17 @@ class MainActivity : AppCompatActivity() {
          * download the messages, for the channel.
          */
         mainChannelName.text = "#${selectedChannel?.name}"
+        if(selectedChannel != null){
+            // Use of !! is acceptable here, since we know selectedChannel will be set.
+            MessageService.getMessages(selectedChannel!!.id){complete ->
+                if(complete){
+                    for(message in MessageService.messages){
+                        Log.d("SM/MSGS", message.message)
+                    }
+                }
+            }
+        }
     }
-
 
     override fun onSupportNavigateUp(): Boolean {
         /**
@@ -263,18 +272,25 @@ class MainActivity : AppCompatActivity() {
          * callbacks, this listener callback does not, so remains on that worker thread.
          */
 
-        // We have to run on the UI thread, however the course does not explain why.
-        // It is odd since Kotlin singletons are thread safe (suspect this is wrong).
-        runOnUiThread {
-            val channelName = args[0] as String
-            val channelDescription = args[1] as String
-            val channelId = args[2] as String
+        // Don't want to accept channels if we are not logged in!
+        if(App.prefs.isLoggedIn){
 
-            val newChannel = Channel(channelName, channelDescription, channelId)
+            if(App.prefs.isLoggedIn){
+                // We have to run on the UI thread, however the course does not explain why.
+                // It is odd since Kotlin singletons are thread safe (suspect this is wrong).
+                runOnUiThread {
+                    val channelId = args[2] as String
 
-            MessageService.channels.add(newChannel)
-            // Notify our data set has changed.
-            channelAdapter.notifyDataSetChanged()
+                    if(channelId == selectedChannel?.id){
+                        val channelName = args[0] as String
+                        val channelDescription = args[1] as String
+
+                        val newChannel = Channel(channelName, channelDescription, channelId)
+
+                        MessageService.channels.add(newChannel)
+                    }
+                }
+            }
         }
     }
 

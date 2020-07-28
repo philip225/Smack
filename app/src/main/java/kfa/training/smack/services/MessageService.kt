@@ -1,6 +1,5 @@
 package kfa.training.smack.services
 
-import android.content.Context
 import android.util.Log
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonArrayRequest
@@ -8,6 +7,7 @@ import kfa.training.smack.Controller.App
 import kfa.training.smack.Model.Channel
 import kfa.training.smack.Model.Message
 import kfa.training.smack.utilities.URL_GET_CHANNELS
+import kfa.training.smack.utilities.URL_GET_MESSAGES
 import org.json.JSONException
 
 object MessageService {
@@ -52,14 +52,72 @@ object MessageService {
             }
 
             override fun getHeaders(): MutableMap<String, String> {
-                // Course deviation, used hashMapOf with 'to' operator to save on lines.
-                val headers = hashMapOf(
+                // Course deviation, used hashMapOf with 'to' operator and inlined, to save on
+                // lines.
+                return hashMapOf(
                     "Authorization" to "Bearer ${App.prefs.authToken}"
                 )
-                return headers
             }
         }
         // Volley request!
         App.prefs.requestQueue.add(channelsRequest)
+    }
+
+    fun getMessages(channelId:String, complete: (Boolean) -> Unit){
+        val url = "$URL_GET_MESSAGES$channelId"
+        clearMessages()
+        val messageRequest = object: JsonArrayRequest(Method.GET, url, null, Response.Listener {response ->
+            // OK - handle the response - decode JSON
+            try{
+                for(x in 0 until response.length()){
+                    val message = response.getJSONObject(x)
+                    val messageBody = message.getString("messageBody")
+                    val channelId = message.getString("channelId")
+                    val id = message.getString("_id")
+                    val userName = message.getString("userName")
+                    val userAvatar = message.getString("userAvatar")
+                    val userAvatarColour = message.getString("userAvatarColor")
+                    val timeStamp = message.getString("timeStamp")
+
+                    val newMessage = Message(
+                        messageBody, userName, channelId, userAvatar, userAvatarColour, id,
+                        timeStamp
+                    )
+                    // Course deviation: 'this' is optional.
+                    messages.add(newMessage)
+                }
+                complete(true)
+            } catch(e: JSONException){
+                Log.d("MS/ERROR", "JSON error when decoding channel list: $e")
+                complete(false)
+            }
+            complete(true)
+        }, Response.ErrorListener {error ->
+            // Error
+            Log.d("MS/ERROR","Error when getting messages: $error")
+            complete(false)
+        }){
+            // Setup headers e.t.c
+            override fun getBodyContentType(): String {
+                return "application/json; charset=utf-8"
+            }
+
+            override fun getHeaders(): MutableMap<String, String> {
+                // Course deviation, used hashMapOf with 'to' operator and inlined, to save on
+                // lines.
+                return hashMapOf(
+                    "Authorization" to "Bearer ${App.prefs.authToken}"
+                )
+            }
+        }
+        App.prefs.requestQueue.add(messageRequest)
+    }
+
+    fun clearMessages(){
+        messages.clear()
+    }
+
+    fun clearChannels(){
+        channels.clear()
     }
 }
