@@ -65,6 +65,12 @@ Course deviation, this was originally in activity_main, now moved to this
         app:layout_constraintStart_toStartOf="parent"
         android:autofillHints="message" />
 
+    <!--
+    XML lint issues, the sendMsgBtnClicked on click handler
+    exists in the MainActivity and is operational.
+    However the XML lint claims it does not exist!
+    Added tools:ignore="OnClick" to suppress the error.
+    -->
     <ImageButton
         android:id="@+id/sendMessageBtn"
         android:layout_width="35dp"
@@ -72,11 +78,13 @@ Course deviation, this was originally in activity_main, now moved to this
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
         android:background="@android:color/transparent"
+        android:onClick="sendMsgBtnClicked"
         android:src="@drawable/ic_menu_send"
         android:tint="@color/colorPrimary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:contentDescription="@string/send_message" />
+        android:contentDescription="@string/send_message"
+        tools:ignore="OnClick" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/messageListView"

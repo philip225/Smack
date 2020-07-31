@@ -20,7 +20,6 @@ import io.socket.client.Socket
 import io.socket.emitter.Emitter
 import kfa.training.smack.Adapters.MessageAdapter
 import kfa.training.smack.Controller.App
-import kfa.training.smack.Model.Channel
 import kfa.training.smack.Model.Message
 import kfa.training.smack.R
 import kfa.training.smack.services.MessageService

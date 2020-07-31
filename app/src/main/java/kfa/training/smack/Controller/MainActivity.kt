@@ -30,6 +30,7 @@ import kfa.training.smack.services.UserDataService
 import kfa.training.smack.utilities.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.add_channel_dialog.view.*
+import kotlinx.android.synthetic.main.fragment_main.*
 import kotlinx.android.synthetic.main.nav_header_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -76,6 +77,39 @@ class MainActivity : AppCompatActivity() {
         channel_list.adapter = channelAdapter
         channel_list.layoutManager = LinearLayoutManager(this)
         channel_list.setHasFixedSize(true)
+    }
+
+    fun sendMsgBtnClicked(@Suppress("UNUSED_PARAMETER") view: View) {
+
+        if(App.prefs.isLoggedIn && messageTextField.text.isNotEmpty() && MessageService.selectedChannel != null){
+            val userId = UserDataService.id
+            // The one rare example where you can use a !! operator since we know selectedChannel is
+            // not null.
+            val channelId = MessageService.selectedChannel!!.id
+            // As before, be careful, the order of the parameters is important!
+            // Also as previously noted this again is a potential security issue, if you have access
+            // to a channel ID you may be able to send spurious messages with bogus user IDs (not
+            // tested this out).
+            socket.emit("newMessage", messageTextField.text.toString(), userId, channelId,
+                UserDataService.name, UserDataService.avatarName, UserDataService.avatarColour)
+            messageTextField.text.clear()
+            hideKeyboard()
+        }
+    }
+
+    private fun hideKeyboard(){
+        // We need the input method service so we can manipulate the keyboard input system.
+        // Deviation from course, 'currentFocus' is now a nullable.
+        // BUG This is not working in the main activity, reason unknown.
+        // Course fixes this with a manifest amend, adding property
+        // 'android:windowSoftInputMode="stateAlwaysHidden"' to MainActivity application
+        // definition.
+        // This is now only called when the send message button click event, is processed.
+        val inputManager = this.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        if (inputManager.isAcceptingText){
+            // Flags: from research it looks like passing int 0 denotes force hide.
+            inputManager.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -135,7 +169,7 @@ class MainActivity : AppCompatActivity() {
                     "drawable", packageName)
                 userImageNavHeader.setImageResource(resourceId)
                 userImageNavHeader.setBackgroundColor(UserDataService.returnAvatarColour(UserDataService.avatarColour))
-                loginBtnNavHeader.text = "Logout"
+                loginBtnNavHeader.text = getString(R.string.Logout)
 
                 // We need some actual channels ('context' is capture closed, hence not using 'it').
                 context?.let{
@@ -185,7 +219,7 @@ class MainActivity : AppCompatActivity() {
         return navController.navigateUp(drawerLayout) || super.onSupportNavigateUp()
     }
 
-    fun addChannelClicked(view: View) {
+    fun addChannelClicked(@Suppress("UNUSED_PARAMETER") view: View) {
        if(App.prefs.isLoggedIn){
            val builder = AlertDialog.Builder(this)
            val dialogView = layoutInflater.inflate(R.layout.add_channel_dialog, null)
@@ -250,7 +284,7 @@ class MainActivity : AppCompatActivity() {
 
     // onNewMessage moved into MainFragment
 
-    fun loginBtnNavClicked(view: View) {
+    fun loginBtnNavClicked(@Suppress("UNUSED_PARAMETER") view: View) {
         /**
          * Deviation from course, we are now using navigation to navigate to our login fragment.
          */
@@ -280,7 +314,7 @@ class MainActivity : AppCompatActivity() {
             userEmailNavHeader.text = ""
             userImageNavHeader.setImageResource(R.drawable.profiledefault)
             userImageNavHeader.setBackgroundColor(Color.TRANSPARENT)
-            loginBtnNavHeader.text = "Login"
+            loginBtnNavHeader.text = getText(R.string.login)
 
             // Broadcast that we have logged out, to interested parties.
             // We do this AFTER we have cleared all the messages.
