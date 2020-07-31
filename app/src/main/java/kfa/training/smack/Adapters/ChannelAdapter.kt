@@ -17,7 +17,7 @@ import kotlinx.android.synthetic.main.channel_list.view.*
  * The channel list uses a recycler view, so we provide a recycler channel adapter for the
  * channel list.
  */
-class ChannelAdapter(val context: Context, val drawLayout: DrawerLayout, val channels: ArrayList<Channel>, val callback: (item: Channel) -> Unit): RecyclerView.Adapter<ChannelAdapter.Holder>() {
+class ChannelAdapter(val context: Context, val drawLayout: DrawerLayout, private val channels: ArrayList<Channel>, val callback: (item: Channel) -> Unit): RecyclerView.Adapter<ChannelAdapter.Holder>() {
 
     inner class Holder(itemView: View): RecyclerView.ViewHolder(itemView){
         private val channelTextView: TextView = itemView.channelNameTxt

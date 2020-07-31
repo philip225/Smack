@@ -5,22 +5,18 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.GravityCompat
-import androidx.databinding.DataBindingUtil
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.observe
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import io.socket.client.IO
+import io.socket.client.Socket
 import io.socket.emitter.Emitter
 import kfa.training.smack.Adapters.MessageAdapter
 import kfa.training.smack.Controller.App
@@ -30,7 +26,6 @@ import kfa.training.smack.R
 import kfa.training.smack.services.MessageService
 import kfa.training.smack.utilities.BROADCAST_CHANNEL_CHANGED
 import kfa.training.smack.utilities.BROADCAST_LOGGED_OUT
-import kfa.training.smack.utilities.BROADCAST_USER_DATA_CHANGE
 import kfa.training.smack.utilities.SOCKET_URL
 import kotlinx.android.synthetic.main.fragment_main.*
 import kotlinx.android.synthetic.main.fragment_main.view.*
@@ -65,9 +60,7 @@ class MainFragment : Fragment() {
 
     private lateinit var messageAdapter: MessageAdapter
 
-    private var selectedChannel: Channel? = null
-
-    val socket = IO.socket(SOCKET_URL)
+    private val socket: Socket = IO.socket(SOCKET_URL)
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -196,35 +189,6 @@ class MainFragment : Fragment() {
                         // Scroll to the last message by index, notice we go via our live data
                         // model view and not directly via the synthetic.
                         mainViewModel.listViewScroll.value = messageAdapter.itemCount-1
-                    }
-                }
-            }
-        }
-    }
-
-    private val onNewChannel = Emitter.Listener { args ->
-        /**
-         * Socket channel listener, called when channels have changed.
-         * Note that this is called on a background worker thread so it does not block the main UI
-         * thread. Unlike the Volley library which switches to the UI thread before calling the
-         * callbacks, this listener callback does not, so remains on that worker thread.
-         */
-
-        // Don't want to accept channels if we are not logged in!
-        if(App.prefs.isLoggedIn){
-
-            if(App.prefs.isLoggedIn){
-                // We have to run on the UI thread, however the course does not explain why.
-                // It is odd since Kotlin singletons are thread safe (suspect this is wrong).
-                activity?.runOnUiThread {
-                    val channelId = args[2] as String
-
-                    if(channelId == selectedChannel?.id){
-                        val channelName = args[0] as String
-                        val channelDescription = args[1] as String
-
-                        val newChannel = Channel(channelName, channelDescription, channelId)
-                        MessageService.channels.add(newChannel)
                     }
                 }
             }

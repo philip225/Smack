@@ -30,7 +30,6 @@ object MessageService {
             try{
                 // This seems long winded, since we requested a JSON array, would have expected
                 // response to be an iterator, allowing iteration over each JSON object.
-                // Library does not support that, todo: Infix time!
                 for(x in 0 until response.length()){
                     val channel = response.getJSONObject(x)
                     val name = channel.getString("name")
@@ -78,7 +77,11 @@ object MessageService {
                 for(x in 0 until response.length()){
                     val message = response.getJSONObject(x)
                     val messageBody = message.getString("messageBody")
-                    val channelId = message.getString("channelId")
+
+                    // This is shadowed and is not required, it should be the same as channelId
+                    // passed into getMessages.
+                    //val channelId = message.getString("channelId")
+
                     val id = message.getString("_id")
                     val userName = message.getString("userName")
                     val userAvatar = message.getString("userAvatar")

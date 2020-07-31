@@ -15,7 +15,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
-class MessageAdapter(val context: Context, val messages: ArrayList<Message>): RecyclerView.Adapter<MessageAdapter.ViewHolder>() {
+class MessageAdapter(val context: Context, private val messages: ArrayList<Message>): RecyclerView.Adapter<MessageAdapter.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessageAdapter.ViewHolder {
         val view = LayoutInflater.from(context).inflate(R.layout.message_list_view, parent, false)
         return ViewHolder(view)
@@ -55,7 +55,7 @@ class MessageAdapter(val context: Context, val messages: ArrayList<Message>): Re
             messageBody.text = message.message
         }
 
-        fun returnDateString(isoString: String): String{
+        private fun returnDateString(isoString: String): String{
             /**
              * Return ISO 8601 timestamp formatted string, into something more readable.
              */

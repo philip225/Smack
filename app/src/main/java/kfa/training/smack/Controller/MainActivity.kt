@@ -19,6 +19,7 @@ import androidx.core.view.GravityCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import io.socket.client.IO
+import io.socket.client.Socket
 import io.socket.emitter.Emitter
 import kfa.training.smack.Model.Channel
 import kfa.training.smack.R
@@ -29,7 +30,6 @@ import kfa.training.smack.services.UserDataService
 import kfa.training.smack.utilities.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.add_channel_dialog.view.*
-import kotlinx.android.synthetic.main.fragment_main.*
 import kotlinx.android.synthetic.main.nav_header_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -49,7 +49,7 @@ class MainActivity : AppCompatActivity() {
     // Curiously, duplex socket connections are allowed prior to authentication, which is a
     // security issue.
     // See the comment starting "Security test", in this code.
-    val socket = IO.socket(SOCKET_URL)
+    private val socket: Socket = IO.socket(SOCKET_URL)
 
     private fun setupAdapters(){
         /**
@@ -299,36 +299,4 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun sendMsgBtnClicked(view: View) {
-
-        if(App.prefs.isLoggedIn && messageTextField.text.isNotEmpty() && MessageService.selectedChannel != null){
-            val userId = UserDataService.id
-            // The one rare example where you can use a !! operator since we know selectedChannel is
-            // not null.
-            val channelId = MessageService.selectedChannel!!.id
-            // As before, be careful, the order of the parameters is important!
-            // Also as previously noted this again is a potential security issue, if you have access
-            // to a channel ID you may be able to send spurious messages with bogus user IDs (not
-            // tested this out).
-            socket.emit("newMessage", messageTextField.text.toString(), userId, channelId,
-                UserDataService.name, UserDataService.avatarName, UserDataService.avatarColour)
-            messageTextField.text.clear()
-            hideKeyboard()
-        }
-    }
-
-    private fun hideKeyboard(){
-        // We need the input method service so we can manipulate the keyboard input system.
-        // Deviation from course, 'currentFocus' is now a nullable.
-        // BUG This is not working in the main activity, reason unknown.
-        // Course fixes this with a manifest amend, adding property
-        // 'android:windowSoftInputMode="stateAlwaysHidden"' to MainActivity application
-        // definition.
-        // This is now only called when the send message button click event, is processed.
-        val inputManager = this.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        if (inputManager.isAcceptingText){
-            // Flags: from research it looks like passing int 0 denotes force hide.
-            inputManager.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
-        }
-    }
 }

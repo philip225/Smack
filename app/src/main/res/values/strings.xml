@@ -12,6 +12,16 @@
     <string name="menu_home">Home</string>
     <string name="menu_gallery">Gallery</string>
     <string name="menu_slideshow">Slideshow</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="generate_background_colour">Generate background colour</string>
+    <string name="avatar_image">Avatar image</string>
+    <string name="tap_to_generate_user_avatar">Tap to generate user avatar.</string>
+    <string name="password">password</string>
+    <string name="email">email</string>
+    <string name="user_name">user name</string>
+    <string name="create_user">Create user</string>
+    <string name="send_message">Send message</string>
+    <string name="message">message:</string>
+    <string name="please_log_in">Please log in.</string>
+    <string name="user_image">User image</string>
+    <string name="login">Login</string>
 </resources>

@@ -52,7 +52,7 @@
         android:layout_marginBottom="8dp"
         android:background="@android:color/transparent"
         android:onClick="loginBtnNavClicked"
-        android:text="Login"
+        android:text="@string/login"
         android:textAlignment="viewStart"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

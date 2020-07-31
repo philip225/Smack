@@ -22,9 +22,9 @@ import kotlin.random.Random
  */
 class CreateUserFragment : Fragment() {
 
-    var userAvatar = "profileDefault"
+    private var userAvatar = "profileDefault"
     // This is the format required for the back end DB.
-    var avatarColor = "[0.5, 0.5, 0.5, 1]"
+    private var avatarColor = "[0.5, 0.5, 0.5, 1]"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -44,13 +44,13 @@ class CreateUserFragment : Fragment() {
 
         // Wire up our click handlers
         createAvatarImageView.setOnClickListener {
-            generateUserAvatar(it)
+            generateUserAvatar()
         }
         backgroundColourBtn.setOnClickListener {
-            generateColourClicked(it)
+            generateColourClicked()
         }
         createUserBtn.setOnClickListener {
-            createUserClicked(it)
+            createUserClicked()
         }
 
         // Hide our spinner
@@ -59,7 +59,7 @@ class CreateUserFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
     }
 
-    private fun generateUserAvatar(view: View){
+    private fun generateUserAvatar(){
         /**
          * Choose a random avatar.
          */
@@ -81,7 +81,7 @@ class CreateUserFragment : Fragment() {
         createAvatarImageView.setImageResource(resourceId)
     }
 
-    private fun generateColourClicked(view: View){
+    private fun generateColourClicked(){
         /**
          * Choose a random colour for the avatar
          */
@@ -96,7 +96,7 @@ class CreateUserFragment : Fragment() {
         avatarColor = "[${r.toDouble()/255}, ${g.toDouble()/255}, ${b.toDouble()/255}, 1]"
     }
 
-    private fun createUserClicked(view: View){
+    private fun createUserClicked(){
         enableSpinner(true)
         val userName = createUserNameText.text.toString()
         val email = createEmailText.text.toString()
@@ -117,7 +117,6 @@ class CreateUserFragment : Fragment() {
             return
         }
 
-        // This code is a bit messy, many many else/ifs, todo look into re-factoring.
         context?.let{context ->
             AuthService.registerUser(
                 email,password

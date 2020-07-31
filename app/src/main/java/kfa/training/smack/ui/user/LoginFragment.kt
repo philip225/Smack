@@ -20,11 +20,6 @@ import kotlinx.android.synthetic.main.fragment_login.*
  * navigable fragment.
  */
 
-/**
- * A simple [Fragment] subclass.
- * Use the [LoginFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class LoginFragment : Fragment() {
     private lateinit var drawerLayout: DrawerLayout
 

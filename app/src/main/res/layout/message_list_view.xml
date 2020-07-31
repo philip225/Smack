@@ -13,7 +13,8 @@
         android:layout_marginTop="8dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:srcCompat="@drawable/dark0" />
+        tools:srcCompat="@drawable/dark0"
+        android:contentDescription="@string/user_image" />
 
     <TextView
         android:id="@+id/messageBodyLbl"

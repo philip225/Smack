@@ -1,6 +1,8 @@
 package kfa.training.smack.utilities
 
 import android.content.Context
+import android.content.SharedPreferences
+import com.android.volley.RequestQueue
 import com.android.volley.toolbox.Volley
 
 class SharedPrefs(context: Context) {
@@ -9,9 +11,9 @@ class SharedPrefs(context: Context) {
      * specific shared preferences, like login details.
      */
     // Minor course deviation, use the official designated mode constant, instead of 0.
-    // Where possible you should use official API constants sincce these values may change between
+    // Where possible you should use official API constants since these values may change between
     // API releases.
-    val prefs = context.getSharedPreferences(PREFS_FILE_NAME, Context.MODE_PRIVATE)
+    private val prefs: SharedPreferences = context.getSharedPreferences(PREFS_FILE_NAME, Context.MODE_PRIVATE)
 
     companion object {
         // Deviation from course, constants specific to a class should be defined in a companion
@@ -42,5 +44,5 @@ class SharedPrefs(context: Context) {
 
     // We only need one request queue for the whole application, so we can
     // define it here.
-    var requestQueue = Volley.newRequestQueue(context)
+    var requestQueue: RequestQueue = Volley.newRequestQueue(context)
 }

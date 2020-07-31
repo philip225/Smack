@@ -42,7 +42,7 @@ Course deviation, this was originally in activity_main, now moved to this
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Please log in."
+        android:text="@string/please_log_in"
         android:textAlignment="center"
         android:textSize="18sp"
         android:textStyle="bold"
@@ -58,11 +58,12 @@ Course deviation, this was originally in activity_main, now moved to this
         android:layout_marginEnd="8dp"
         android:ems="10"
         android:gravity="start|top"
-        android:hint="message:"
+        android:hint="@string/message"
         android:inputType="textMultiLine"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        android:autofillHints="message" />
 
     <ImageButton
         android:id="@+id/sendMessageBtn"
@@ -71,11 +72,11 @@ Course deviation, this was originally in activity_main, now moved to this
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
         android:background="@android:color/transparent"
-        android:onClick="sendMsgBtnClicked"
         android:src="@drawable/ic_menu_send"
         android:tint="@color/colorPrimary"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        android:contentDescription="@string/send_message" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/messageListView"
