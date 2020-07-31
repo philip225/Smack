@@ -1,6 +1,7 @@
 package kfa.training.smack.Adapters
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,6 +10,10 @@ import kfa.training.smack.Model.Message
 import kfa.training.smack.R
 import kfa.training.smack.services.UserDataService
 import kotlinx.android.synthetic.main.message_list_view.view.*
+import java.text.ParseException
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 class MessageAdapter(val context: Context, val messages: ArrayList<Message>): RecyclerView.Adapter<MessageAdapter.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessageAdapter.ViewHolder {
@@ -46,8 +51,27 @@ class MessageAdapter(val context: Context, val messages: ArrayList<Message>): Re
             userImage.setBackgroundColor(
                 UserDataService.returnAvatarColour(message.userAvatarColour))
             userName.text = message.userName
-            timeStamp.text = message.timeStamp
+            timeStamp.text = returnDateString(message.timeStamp)
             messageBody.text = message.message
+        }
+
+        fun returnDateString(isoString: String): String{
+            /**
+             * Return ISO 8601 timestamp formatted string, into something more readable.
+             */
+            val isoFormatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+            isoFormatter.timeZone = TimeZone.getTimeZone("UTC")
+            var convertedDate = Date()
+            try{
+                // Course deviation: isoFormatter.parse(isoString) now returns a nullable, elvis
+                // operator used to return convertedDate as default, on null.
+                convertedDate = isoFormatter.parse(isoString) ?: convertedDate
+            } catch(e: ParseException){
+                Log.d("MA/HOLDER","Cannot parse date $isoString")
+            }
+
+            val outDateString = SimpleDateFormat("E, h:mm a", Locale.getDefault())
+            return outDateString.format(convertedDate)
         }
     }
 }

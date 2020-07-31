@@ -29,6 +29,7 @@ import kfa.training.smack.Model.Message
 import kfa.training.smack.R
 import kfa.training.smack.services.MessageService
 import kfa.training.smack.utilities.BROADCAST_CHANNEL_CHANGED
+import kfa.training.smack.utilities.BROADCAST_LOGGED_OUT
 import kfa.training.smack.utilities.BROADCAST_USER_DATA_CHANGE
 import kfa.training.smack.utilities.SOCKET_URL
 import kotlinx.android.synthetic.main.fragment_main.*
@@ -92,24 +93,28 @@ class MainFragment : Fragment() {
             root.messageListView.scrollToPosition(it)
         })
 
+        // Course deviation:
+        // Setup our broadcast receivers to indicate a channel change and logout.
+        context?.let{
+            LocalBroadcastManager.getInstance(it).registerReceiver(onChannelChanged, IntentFilter(
+                BROADCAST_CHANNEL_CHANGED
+                )
+            )
+            LocalBroadcastManager.getInstance(it).registerReceiver(onLogout, IntentFilter(
+                BROADCAST_LOGGED_OUT
+            )
+            )
+        }
+
         updateWithChannel()
         return root
-    }
-
-    override fun onResume() {
-        // Setup our broadcast receiver to indicate a channel change
-        context?.let{
-        LocalBroadcastManager.getInstance(it).registerReceiver(onChannelChanged, IntentFilter(
-            BROADCAST_CHANNEL_CHANGED
-            )
-        )}
-        super.onResume()
     }
 
     override fun onDestroy() {
         // Deregister our broadcast manager
         context?.let {
             LocalBroadcastManager.getInstance(it).unregisterReceiver(onChannelChanged)
+            LocalBroadcastManager.getInstance(it).unregisterReceiver(onLogout)
         }
         super.onDestroy()
     }
@@ -123,6 +128,19 @@ class MainFragment : Fragment() {
                 // Update the channels
                 updateWithChannel()
             }
+        }
+    }
+
+    private val onLogout = object: BroadcastReceiver(){
+        /**
+         * Deviation from course: We hook onto the logout broadcast so we can reset the
+         * channel name back to "Please log in." and call notifyDataSetChanged() on the message
+         * adapter to clear all the messages.
+         */
+        override fun onReceive(context: Context?, intent: Intent?) {
+            messageAdapter.notifyDataSetChanged()
+            // Update the main channel name to "Please log in."
+            mainViewModel.mainChannelName.value = "Please log in"
         }
     }
 

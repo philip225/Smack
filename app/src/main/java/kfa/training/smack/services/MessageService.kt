@@ -24,6 +24,8 @@ object MessageService {
     fun getChannels(complete: (Boolean) -> Unit){
         val channelsRequest = object: JsonArrayRequest(Method.GET, URL_GET_CHANNELS, null, Response.Listener {response ->
             /** Data returned **/
+            // Clear existing channels
+            clearChannels()
             // Decode the JSON
             try{
                 // This seems long winded, since we requested a JSON array, would have expected

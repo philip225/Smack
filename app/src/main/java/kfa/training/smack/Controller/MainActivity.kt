@@ -104,17 +104,16 @@ class MainActivity : AppCompatActivity() {
             // Simply calling findUserByEmail will populate the UserDataService
             AuthService.findUserByEmail(this){}
         }
-
-        // Deviation from course, we do not setup a global listener, it is already setup in
+        LocalBroadcastManager.getInstance(this).registerReceiver(userDataChangedReceiver, IntentFilter(
+            BROADCAST_USER_DATA_CHANGE))
+        // Deviation from course: we do not setup a global listener, it is already setup in
         // setupAdapters()
-
+        setupAdapters()
     }
 
     override fun onResume() {
         /** Broadcast receiver - following the course and defining it here in the activity, instead
          * of in the main fragment **/
-        LocalBroadcastManager.getInstance(this).registerReceiver(userDataChangedReceiver, IntentFilter(
-            BROADCAST_USER_DATA_CHANGE))
 
         Log.d("SM/SOCKET", "WebSocket connected.")
 
@@ -304,6 +303,11 @@ class MainActivity : AppCompatActivity() {
             userImageNavHeader.setImageResource(R.drawable.profiledefault)
             userImageNavHeader.setBackgroundColor(Color.TRANSPARENT)
             loginBtnNavHeader.text = "Login"
+
+            // Broadcast that we have logged out, to interested parties.
+            // We do this AFTER we have cleared all the messages.
+            val loggedOut = Intent(BROADCAST_LOGGED_OUT)
+            LocalBroadcastManager.getInstance(this).sendBroadcast(loggedOut)
 
             // Leave the draw open.
         } else {
