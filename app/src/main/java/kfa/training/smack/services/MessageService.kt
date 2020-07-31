@@ -88,7 +88,9 @@ object MessageService {
                         timeStamp
                     )
                     // Course deviation: 'this' is optional.
-                    messages.add(newMessage)
+                    // Course deviation: only add the new message if it does not exist, this
+                    // is a guard for us being called, multiple times.
+                    if(newMessage !in messages) messages.add(newMessage)
                 }
                 complete(true)
             } catch(e: JSONException){

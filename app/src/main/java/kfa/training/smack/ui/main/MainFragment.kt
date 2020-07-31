@@ -36,13 +36,15 @@ import kotlinx.android.synthetic.main.fragment_main.view.*
 
 /**
  * Course deviation - this takes the place of the MainActivity for UI operations, in effect
- * this becomes "MainActivity".
+ * this becomes "MainActivity" for some of the functionality.
  * Course deviation - this uses live data model binding, reason:
- * We need to update the UI elements, not a problem normally except inside a fragment.
- * Now the pattern with fragments is to use live data ViewModel UI model adapters (MVVC methadolody).
- * So what, don't have to stick to MVVC, WRONG, we do now!
+ * We need to update the UI elements, not a problem normally when inside a fragment.
+ * With fragments live data ViewModel UI model interfaces (MVVC methodology) is strongly suggested.
+ * Do we have to use MVVC, yes we do to correctly handle the lifecycle of fragment UI elements, that
+ * cannot handle their own lifecycle.
+ * However we have synthetic imports that resolve this, well no they don't:
  * If you dispose of this fragment, which what happens if you say logout then log in again, the
- * synthetic imports fall part!
+ * synthetic imports "fall apart"!
  * So accessing mainChannelName directly will fail after this fragment has been disposed of and
  * re-created.
  * How to fix, use live data, view models and observables, which can handle the lifecycle of the
@@ -73,8 +75,8 @@ class MainFragment : Fragment() {
     ): View? {
         val root = inflater.inflate(R.layout.fragment_main, container, false)
 
-        // Look for changes for the mainChannelName, this has to be setup here in the
-        // onCreateView instead of onViewCreated
+        // Look for changes for the mainChannelName, this has to be setup here in
+        // onCreateView() instead of onViewCreated()
         // We assign our observer to observer changes on mainViewModel.mainChannelName
 
         mainViewModel.mainChannelName.observe(viewLifecycleOwner, Observer<String> {
@@ -83,8 +85,9 @@ class MainFragment : Fragment() {
             root.mainChannelName.text = it
         })
 
-        // The adapter is setup in onView and handles it's lifecycle OK, but we need reference to
-        // the messageListView
+        // The adapter is setup in onViewCreated() and handles it's lifecycle OK, but we need
+        // reference to the messageListView, since the RecyclerView UI element is lost on disposal
+        // of this fragment.
         mainViewModel.listViewScroll.observe(viewLifecycleOwner, Observer<Int>{
             root.messageListView.scrollToPosition(it)
         })

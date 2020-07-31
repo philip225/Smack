@@ -8,7 +8,7 @@ import kfa.training.smack.R
 
 fun navigateToFragment(activity:Activity, navigableResourceID:Int){
     /**
-     * Convenience function to shorten the code for navigation.
+     * Convenience function to shorten the code for navigation, from an activity.
      * @param activity: Main activity, if this is called from inside an Activity then pass 'this'.
      * @param navigableResourceID: A navigation path resource or navigation fragment id.
      */
@@ -17,9 +17,11 @@ fun navigateToFragment(activity:Activity, navigableResourceID:Int){
     findNavController(activity, R.id.nav_host_fragment).navigate(navigableResourceID)
 }
 
+// For the curious this is an example of function overloading.
+// See https://kotlinlang.org/docs/tutorials/kotlin-for-py/functions.html#overloading
 fun navigateToFragment(fragment: Fragment, navigableResourceID:Int){
     /**
-     * Convenience function to shorten the code for navigation.
+     * Convenience function to shorten the code for navigation, from a fragment.
      * @param fragment: Fragment, if this is called from inside a Fragment then pass 'this'.
      * @param navigableResourceID: A navigation path resource or navigation fragment id.
      */
