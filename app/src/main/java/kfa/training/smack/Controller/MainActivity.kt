@@ -23,7 +23,6 @@ import io.socket.emitter.Emitter
 import kfa.training.smack.Model.Channel
 import kfa.training.smack.R
 import kfa.training.smack.Adapters.ChannelAdapter
-import kfa.training.smack.Adapters.MessageAdapter
 import kfa.training.smack.services.AuthService
 import kfa.training.smack.services.MessageService
 import kfa.training.smack.services.UserDataService
@@ -42,7 +41,10 @@ class MainActivity : AppCompatActivity() {
     //private var selectedChannel: Channel? = null
 
     private lateinit var channelAdapter: ChannelAdapter
-    private lateinit var messageAdapter: MessageAdapter
+
+    // Course deviation:
+    // MessageAdapter has been moved into MainFragment
+    // private lateinit var messageAdapter: MessageAdapter
 
     // Curiously, duplex socket connections are allowed prior to authentication, which is a
     // security issue.
@@ -65,16 +67,15 @@ class MainActivity : AppCompatActivity() {
             // Callback for a channel that has been clicked (draw has already been closed for us).
             // Update the selected channel.
             MessageService.selectedChannel = channel
+            // Course deviation:
             // Broadcast a channel change.
-            val userDataChange = Intent(BROADCAST_CHANNEL_CHANGED)
-            LocalBroadcastManager.getInstance(this).sendBroadcast(userDataChange)
+            val channelChange = Intent(BROADCAST_CHANNEL_CHANGED)
+            LocalBroadcastManager.getInstance(this).sendBroadcast(channelChange)
             }
         // Set our adapter.
         channel_list.adapter = channelAdapter
         channel_list.layoutManager = LinearLayoutManager(this)
         channel_list.setHasFixedSize(true)
-
-        // Message adapter - moved to MainFragment.
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -95,13 +96,6 @@ class MainActivity : AppCompatActivity() {
         drawerLayout  = findViewById(R.id.drawer_layout)
         val navView: NavigationView = findViewById(R.id.nav_view)
         val navController = findNavController(R.id.nav_host_fragment)
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
-        // We have no menu any more!! So this is not applicable.
-//        appBarConfiguration = AppBarConfiguration(setOf(
-//                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow), drawerLayout)
-        // The second parameter changes from appBarConfiguration to drawerLayout for the same
-        // reason of their being no menu.
         setupActionBarWithNavController(navController, drawerLayout)
         navView.setupWithNavController(navController)
 
@@ -172,7 +166,7 @@ class MainActivity : AppCompatActivity() {
                         if(complete){
                             // We have zero or more channels to show, we can setup our adapter!
                             // Course deviation, we setup the adapter here since we need to
-                            // setup callbacks on initalisation.
+                            // setup callbacks on initialisation.
                             setupAdapters()
 
                             // We do not need to notify a change in the data set since we have
@@ -181,12 +175,12 @@ class MainActivity : AppCompatActivity() {
                             if(MessageService.channels.count() > 0){
                                 // We have channels, we default to the first channel.
                                 MessageService.selectedChannel = MessageService.channels[0]
+
+                                // Course deviation:
                                 // We broadcast to interested parties that the channels
                                 // have been updated.
-                                // todo: Broadcast to our fragment.
-
-
-                                //updateWithChannel()
+                                val channelChange = Intent(BROADCAST_CHANNEL_CHANGED)
+                                LocalBroadcastManager.getInstance(it).sendBroadcast(channelChange)
                             }
                         } else {
                             // ERROR!
@@ -203,6 +197,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onSupportNavigateUp(): Boolean {
         /**
+         * Course deviation:
          * This handles navigation for the draw - showing the draw when the tool button is clicked.
          * We cannot use a appBarConfiguration with this since we have removed the menu for our
          * dynamic draw layout.
@@ -288,7 +283,18 @@ class MainActivity : AppCompatActivity() {
 
             // Data has been cleared out so we notify the channel and message adapters of this
             // change, so the channels and messages are cleared.
-            channelAdapter.notifyDataSetChanged()
+            // Course deviation: message update is now done via broadcast.
+            // Important! If the back end is _not_ accessible (not running or network issue) then
+            // channelAdapter will _not_ be initialised.
+            // To test a lateinit (since Kotlin V 1.2) access the variable via its property
+            // reference, and check the boolean property 'isInitialized'.
+            // A property reference can be got at via the class of (::), the instance of, this
+            // class.
+            if(this::channelAdapter.isInitialized){
+               channelAdapter.notifyDataSetChanged()
+            }
+
+            // channelAdapter.notifyDataSetChanged()
             //messageAdapter.notifyDataSetChanged()
 
             // Reset UI
