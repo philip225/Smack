@@ -70,8 +70,8 @@ object MessageService {
     }
 
     fun getMessages(channelId:String, complete: (Boolean) -> Unit){
-        val url = "$URL_GET_MESSAGES$channelId"
         clearMessages()
+        val url = "$URL_GET_MESSAGES$channelId"
         val messageRequest = object: JsonArrayRequest(Method.GET, url, null, Response.Listener {response ->
             // OK - handle the response - decode JSON
             try{

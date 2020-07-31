@@ -108,29 +108,7 @@ class MainActivity : AppCompatActivity() {
             BROADCAST_USER_DATA_CHANGE))
         // Deviation from course: we do not setup a global listener, it is already setup in
         // setupAdapters()
-        setupAdapters()
-    }
-
-    override fun onResume() {
-        /** Broadcast receiver - following the course and defining it here in the activity, instead
-         * of in the main fragment **/
-
-        Log.d("SM/SOCKET", "WebSocket connected.")
-
-        /* Security test - This is not part of the course! Setup a bogus channel before we are
-        logged in.
-        Result - we can! This is a security flaw!
-        Unfortunately RFC 6455 states that WebSockets use the "useless" origin-based security model
-        (CSRF attack)!
-        What should happen ideally is that as part of the emit, one of the parameters should be an
-        auth token (can be different from the Bearer token) which can be used to authenticate
-        the web socket request, thus allowing the request to be rejected/ignored.
-        */
-        /* Uncomment to see this in action!
-        socket.emit("newChannel", "Dodgy Channel",
-            "I can create channels before logging in!!")
-        */
-        super.onResume()
+        // setupAdapters()
     }
 
     override fun onDestroy() {

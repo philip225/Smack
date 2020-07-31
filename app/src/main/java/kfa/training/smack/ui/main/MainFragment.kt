@@ -96,6 +96,7 @@ class MainFragment : Fragment() {
         // Course deviation:
         // Setup our broadcast receivers to indicate a channel change and logout.
         context?.let{
+
             LocalBroadcastManager.getInstance(it).registerReceiver(onChannelChanged, IntentFilter(
                 BROADCAST_CHANNEL_CHANGED
                 )
@@ -105,11 +106,22 @@ class MainFragment : Fragment() {
             )
             )
         }
-
-        updateWithChannel()
         return root
     }
 
+    override fun onDestroyView() {
+        context?.let {
+            LocalBroadcastManager.getInstance(it).unregisterReceiver(onChannelChanged)
+            LocalBroadcastManager.getInstance(it).unregisterReceiver(onLogout)
+        }
+        super.onDestroyView()
+    }
+
+    /*
+    Due to a bug/flaw (or by design?) in navigation manager, this is not called when we
+    navigate away!
+    See https://issuetracker.google.com/issues/155574963
+    What is called however is onDestroyView(), see above.
     override fun onDestroy() {
         // Deregister our broadcast manager
         context?.let {
@@ -118,7 +130,12 @@ class MainFragment : Fragment() {
         }
         super.onDestroy()
     }
+    */
 
+
+
+    // BUG: This is being called twice!
+    // Reason:
     private val onChannelChanged = object: BroadcastReceiver(){
         override fun onReceive(context: Context?, intent: Intent?) {
             /** Received notification of a channel change **/
@@ -158,7 +175,6 @@ class MainFragment : Fragment() {
         socket.connect()
         socket.on("messageCreated", onNewMessage)
 
-
         super.onViewCreated(view, savedInstanceState)
     }
 
@@ -172,7 +188,6 @@ class MainFragment : Fragment() {
         drawerLayout?.closeDrawer(GravityCompat.START)
 
         if(MessageService.selectedChannel != null){
-
             MessageService.getMessages(MessageService.selectedChannel!!.id){ complete ->
                 if(complete){
                     messageAdapter.notifyDataSetChanged()
