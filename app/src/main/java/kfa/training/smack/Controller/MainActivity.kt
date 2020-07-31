@@ -4,10 +4,8 @@ import android.content.*
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.navigation.NavigationView
 import androidx.navigation.findNavController
@@ -23,30 +21,25 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import io.socket.client.IO
 import io.socket.emitter.Emitter
 import kfa.training.smack.Model.Channel
-import kfa.training.smack.Model.Message
 import kfa.training.smack.R
 import kfa.training.smack.Adapters.ChannelAdapter
 import kfa.training.smack.Adapters.MessageAdapter
 import kfa.training.smack.services.AuthService
 import kfa.training.smack.services.MessageService
 import kfa.training.smack.services.UserDataService
-import kfa.training.smack.utilities.BROADCAST_USER_DATA_CHANGE
-import kfa.training.smack.utilities.SOCKET_URL
-import kfa.training.smack.utilities.navigateToFragment
-import kfa.training.smack.utilities.toasty
+import kfa.training.smack.utilities.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.add_channel_dialog.view.*
 import kotlinx.android.synthetic.main.fragment_main.*
-import kotlinx.android.synthetic.main.fragment_main.view.*
 import kotlinx.android.synthetic.main.nav_header_main.*
 
 class MainActivity : AppCompatActivity() {
 
-    // private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var drawerLayout: DrawerLayout
 
-    // Main activity will handle the recycler views as per the course.
-    private var selectedChannel: Channel? = null
+    // Course deviation:
+    // selectedChannel has been moved into MessageService singleton so MainFragment can pick it up.
+    //private var selectedChannel: Channel? = null
 
     private lateinit var channelAdapter: ChannelAdapter
     private lateinit var messageAdapter: MessageAdapter
@@ -68,20 +61,20 @@ class MainActivity : AppCompatActivity() {
                 this, drawerLayout,
                 MessageService.channels
             ) { channel ->
-                // Callback for a channel that has been clicked (draw has already been closed for us).
-                selectedChannel = channel
-                updateWithChannel()
+
+            // Callback for a channel that has been clicked (draw has already been closed for us).
+            // Update the selected channel.
+            MessageService.selectedChannel = channel
+            // Broadcast a channel change.
+            val userDataChange = Intent(BROADCAST_CHANNEL_CHANGED)
+            LocalBroadcastManager.getInstance(this).sendBroadcast(userDataChange)
             }
         // Set our adapter.
         channel_list.adapter = channelAdapter
         channel_list.layoutManager = LinearLayoutManager(this)
         channel_list.setHasFixedSize(true)
 
-        // Message adapter
-        messageAdapter = MessageAdapter(this, MessageService.messages)
-        mainFragment.messageListView.adapter = messageAdapter
-        mainFragment.messageListView.layoutManager = LinearLayoutManager(this)
-        messageAdapter.notifyDataSetChanged()
+        // Message adapter - moved to MainFragment.
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -96,7 +89,7 @@ class MainActivity : AppCompatActivity() {
         socket.connect()
         // Hook up our socket listener and listen for 'channelCreated' events.
         socket.on("channelCreated", onNewChannel)
-        socket.on("messageCreated", onNewMessage)
+        //socket.on("messageCreated", onNewMessage)
 
         // Notice drawerLayout is now global, this is needed elsewhere.
         drawerLayout  = findViewById(R.id.drawer_layout)
@@ -187,8 +180,13 @@ class MainActivity : AppCompatActivity() {
 
                             if(MessageService.channels.count() > 0){
                                 // We have channels, we default to the first channel.
-                                selectedChannel = MessageService.channels[0]
-                                updateWithChannel()
+                                MessageService.selectedChannel = MessageService.channels[0]
+                                // We broadcast to interested parties that the channels
+                                // have been updated.
+                                // todo: Broadcast to our fragment.
+
+
+                                //updateWithChannel()
                             }
                         } else {
                             // ERROR!
@@ -201,51 +199,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun updateWithChannel(){
-        /**
-         * Change channel layout view main text to the channel name and
-         * download the messages, for the channel.
-         */
-        // Deviation from course, we want to close the draw so we can see the channel list.
-        drawerLayout.closeDrawer(GravityCompat.START)
-
-        if(selectedChannel != null){
-            // BUG! UI elements are not updating when logging out then back in, in the _same_
-            // session.
-            // UI updates in fragmentMain fine, but cannot be updated from MainActivity any more
-            // after logout/in.
-            // Suspect we have a synthetic reference issue where the synthetic is left pointing
-            // to a detached fragment_main fragment, when we navigate away to the login fragment.
-
-            mainChannelName.text = "#${selectedChannel!!.name}" // this fails
-// All code below fails.
-//            mainFragment.mainChannelName.text = "#${selectedChannel!!.name}" // this also fails
-//
-//            // So lets inflate fragment_main and try again directly - still fails!
-//            val frag = LayoutInflater.from(this).inflate(R.layout.fragment_main, findViewById(R.id.mainFragment), false)
-//            frag.findViewById<TextView>(R.id.mainChannelName).text = "#${selectedChannel!!.name}"
-
-            // OK, a lot is made of using data model binding, I suspect that this is how this
-            // should be done and the MainActivity should be communicating to the mainFragment
-            // via UI data binding models.
-            // Use of synthetics I suspect is not the right way, when intercommunicating between
-            // activities and fragments.
-            // See: https://www.raywenderlich.com/1364094-android-fragments-tutorial-an-introduction-with-kotlin
-
-
-            // Use of !! is acceptable here, since we know selectedChannel will be set.
-            MessageService.getMessages(selectedChannel!!.id){complete ->
-                if(complete){
-                    messageAdapter.notifyDataSetChanged()
-                    // Scroll to the bottom
-                    if(messageAdapter.itemCount > 0){
-                        // Scroll to the last message by index.
-                        messageListView.smoothScrollToPosition(messageAdapter.itemCount - 1)
-                    }
-                }
-            }
-        }
-    }
+    // updateWithChannel() moved to MainFragment
 
     override fun onSupportNavigateUp(): Boolean {
         /**
@@ -289,7 +243,6 @@ class MainActivity : AppCompatActivity() {
                    // Course deviation, parameter 'i' is now named 'which'
 
                }.show()
-
        }
     }
 
@@ -310,7 +263,7 @@ class MainActivity : AppCompatActivity() {
                 runOnUiThread {
                     val channelId = args[2] as String
 
-                    if(channelId == selectedChannel?.id){
+                    if(channelId == MessageService.selectedChannel?.id){
                         val channelName = args[0] as String
                         val channelDescription = args[1] as String
 
@@ -322,27 +275,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private val onNewMessage = Emitter.Listener {args ->
-        runOnUiThread {
-            val msgBody = args[0] as String
-            // We skip args[1] since we do not make use of the message id.
-            val channelId = args[2] as String
-            val userName = args[3] as String
-            val userAvatar = args[4] as String
-            val userAvatarColour = args[5] as String
-            val id = args[6] as String
-            val timeStamp = args[7] as String
-
-            val newMessage = Message(msgBody, userName, channelId, userAvatar, userAvatarColour,
-                id, timeStamp)
-
-            MessageService.messages.add(newMessage)
-            messageAdapter.notifyDataSetChanged()
-            messageListView.smoothScrollToPosition(messageAdapter.itemCount - 1)
-        }
-
-    }
-
+    // onNewMessage moved into MainFragment
 
     fun loginBtnNavClicked(view: View) {
         /**
@@ -356,7 +289,7 @@ class MainActivity : AppCompatActivity() {
             // Data has been cleared out so we notify the channel and message adapters of this
             // change, so the channels and messages are cleared.
             channelAdapter.notifyDataSetChanged()
-            messageAdapter.notifyDataSetChanged()
+            //messageAdapter.notifyDataSetChanged()
 
             // Reset UI
             userNameNavHeader.text = ""
@@ -364,9 +297,6 @@ class MainActivity : AppCompatActivity() {
             userImageNavHeader.setImageResource(R.drawable.profiledefault)
             userImageNavHeader.setBackgroundColor(Color.TRANSPARENT)
             loginBtnNavHeader.text = "Login"
-
-            mainChannelName.text = "Please log IN."
-
 
             // Leave the draw open.
         } else {
@@ -382,11 +312,11 @@ class MainActivity : AppCompatActivity() {
 
     fun sendMsgBtnClicked(view: View) {
 
-        if(App.prefs.isLoggedIn && messageTextField.text.isNotEmpty() && selectedChannel != null){
+        if(App.prefs.isLoggedIn && messageTextField.text.isNotEmpty() && MessageService.selectedChannel != null){
             val userId = UserDataService.id
             // The one rare example where you can use a !! operator since we know selectedChannel is
             // not null.
-            val channelId = selectedChannel!!.id
+            val channelId = MessageService.selectedChannel!!.id
             // As before, be careful, the order of the parameters is important!
             // Also as previously noted this again is a potential security issue, if you have access
             // to a channel ID you may be able to send spurious messages with bogus user IDs (not

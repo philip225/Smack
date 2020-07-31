@@ -14,3 +14,5 @@ const val URL_GET_MESSAGES = "${BASE_URL}message/byChannel/"  // End '/' is requ
 
 /** Broadcast constants **/
 const val BROADCAST_USER_DATA_CHANGE = "BROADCAST_USER_DATA_CHANGE"
+// Deviation from course, this is needed to indicate to MainFragment, that the channel has changed.
+const val BROADCAST_CHANNEL_CHANGED = "BROADCAST_CHANNEL_CHANGED"

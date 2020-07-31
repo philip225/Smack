@@ -17,6 +17,10 @@ object MessageService {
     val channels = ArrayList<Channel>()
     val messages = ArrayList<Message>()
 
+    // Deviation from course, we need to communicate across the application which channel is
+    // currently selected.
+    var selectedChannel: Channel? = null
+
     fun getChannels(complete: (Boolean) -> Unit){
         val channelsRequest = object: JsonArrayRequest(Method.GET, URL_GET_CHANNELS, null, Response.Listener {response ->
             /** Data returned **/
