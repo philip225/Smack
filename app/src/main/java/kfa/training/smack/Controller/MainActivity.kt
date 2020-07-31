@@ -258,12 +258,13 @@ class MainActivity : AppCompatActivity() {
                 runOnUiThread {
                     val channelId = args[2] as String
 
-                    if(channelId == MessageService.selectedChannel?.id){
+                    if(channelId != MessageService.selectedChannel?.id){
                         val channelName = args[0] as String
                         val channelDescription = args[1] as String
 
                         val newChannel = Channel(channelName, channelDescription, channelId)
                         MessageService.channels.add(newChannel)
+                        channelAdapter.notifyDataSetChanged()
                     }
                 }
             }
