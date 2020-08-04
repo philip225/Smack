@@ -25,7 +25,6 @@
   brought in here, by inclusion of app_bar_main.
   -->
     <include
-        android:id="@+id/app_bar_main_include"
         layout="@layout/app_bar_main"
         android:layout_width="wrap_content"
         android:layout_height="match_parent" />
@@ -40,6 +39,7 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
+        app:headerLayout="@layout/nav_header_main"
         android:fitsSystemWindows="true">
         <!-- Deviation from course, used a ConstraintLayout instead of a  RelativeLayout
         since the layout can be achieved using a ConstraintLayout and thus
@@ -50,24 +50,24 @@
         <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-            <include
-                android:id="@+id/header_main_include"
-                layout="@layout/nav_header_main"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+<!--            <include-->
+<!--                android:id="@+id/header_main_include"-->
+<!--                layout="@layout/nav_header_main"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content" />-->
             <!-- Deviation from course, chosen to use a RecyclerView, ListView
             is OK for this but RecyclerView provides more optimisation and
             is more flexible.
              -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/channel_list"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="@dimen/nav_header_height"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/header_main_include" />
+                app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </com.google.android.material.navigation.NavigationView>

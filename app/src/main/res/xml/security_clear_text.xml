@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ Deviation from course, in API 28+ clear text over an insecure connection is now blocked!
+ You will get the Java exception:
+ java.io.IOException: Cleartext HTTP traffic to 10.0.2.2 not permitted.
+ This security configuration overrides that for 10.0.2.2
+ -->
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">10.0.2.2</domain>
+    </domain-config>
+</network-security-config>

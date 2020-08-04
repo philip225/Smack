@@ -28,24 +28,64 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+    // Important, this is required for data binding.
+    buildFeatures {
+        dataBinding true
+    }
+
+    lintOptions {
+        lintConfig file('lint.xml')
+    }
 }
 
 dependencies {
+    def lifecycle_version = "2.2.0"
+
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation 'androidx.core:core-ktx:1.3.0'
+    implementation 'androidx.core:core-ktx:1.3.1'
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'com.google.android.material:material:1.1.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation 'androidx.navigation:navigation-fragment:2.3.0'
     implementation 'androidx.navigation:navigation-ui:2.3.0'
-    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.navigation:navigation-fragment-ktx:2.3.0'
     implementation 'androidx.navigation:navigation-ui-ktx:2.3.0'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
+
+    // ** Live data **
+    // ViewModel
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
+    // LiveData
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
+    // Lifecycle
+    implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_version"
+    // Saved state module for ViewModel
+    implementation "androidx.lifecycle:lifecycle-viewmodel-savedstate:$lifecycle_version"
+    // Annotation processor
+    implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
+
+    // Volley library.
+    // In the course 'compile' was used, this is now deprecated and replaced by 'implementation'.
+    implementation 'com.android.volley:volley:1.1.1'
+
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    // Socket.IO-client library (ported from the Javascript version) for realtime full duplex
+    // socket communication.
+    // See https://socket.io/docs/
+    // See https://github.com/socketio/socket.io-client-java
+    // IMPORTANT: This is not a WebSocket client, it is a Socket.IO client, so if you are
+    // communicating with a generic WebSocket server, this library will not work!
+    // For generic WebSockets clients that comply to RFC 6455, look at libraries like
+    // https://github.com/TooTallNate/Java-WebSocket
+    // or https://www.oracle.com/technical-resources/articles/java/jsr356.html
+    // Deviation from course, 'compile' is deprecated, replaced with 'implementation'
+    implementation ('io.socket:socket.io-client:1.0.0') {
+        // excluding org.json which is provided by Android
+        exclude group: 'org.json', module: 'json'
+    }
 
 }
