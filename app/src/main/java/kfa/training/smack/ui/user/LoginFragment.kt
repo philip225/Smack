@@ -38,7 +38,7 @@ class LoginFragment : Fragment() {
          * reasons explained in fragment_login.xml
          * So here we manually wire up our on click listeners, to the login and user creation
          * buttons:
-         * Also, we have to define this here since the view has to have been layed out.
+         * Also, we have to define this here since the view has to have been laid out.
          */
 
         // Hide our spinner
@@ -46,10 +46,10 @@ class LoginFragment : Fragment() {
 
         loginLoginBtn.setOnClickListener{
             // Call our callbacks
-            loginLoginBtnClicked(it)
+            loginLoginBtnClicked()
         }
         loginCreateUserBtn.setOnClickListener {
-            loginCreateUserBtnClicked(it)
+            loginCreateUserBtnClicked()
         }
 
         activity?.let{
@@ -58,7 +58,7 @@ class LoginFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
     }
 
-    private fun loginLoginBtnClicked(view: View) {
+    private fun loginLoginBtnClicked() {
         enableSpinner(true)
         val email = loginEmailTxt.text.toString()
         val password = loginPasswordTxt.text.toString()
@@ -100,7 +100,7 @@ class LoginFragment : Fragment() {
         }
 
     }
-    private fun loginCreateUserBtnClicked(view: View) {
+    private fun loginCreateUserBtnClicked() {
         /**
          * Navigate to the create user fragment
          */
@@ -135,8 +135,8 @@ class LoginFragment : Fragment() {
 
     private fun hideKeyboard(){
         // We need the input method service so we can manipulate the keyboard input system.
-        // Deviation from course, 'activity' and 'currentFocus' are both nullables inside a
-        // fragment.
+        // Deviation from course, 'activity' and 'currentFocus' are both nullable objects, inside
+        // a fragment.
         val inputManager = activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         if (inputManager.isAcceptingText){
             inputManager.hideSoftInputFromWindow(activity?.currentFocus?.windowToken, 0)

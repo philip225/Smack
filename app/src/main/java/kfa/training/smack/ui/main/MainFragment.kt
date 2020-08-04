@@ -34,8 +34,8 @@ import kotlinx.android.synthetic.main.fragment_main.view.*
  * this becomes "MainActivity" for some of the functionality.
  * Course deviation - this uses live data model binding, reason:
  * We need to update the UI elements, not a problem normally when inside a fragment.
- * With fragments live data ViewModel UI model interfaces (MVVC methodology) is strongly suggested.
- * Do we have to use MVVC, yes we do to correctly handle the lifecycle of fragment UI elements, that
+ * With fragments live data ViewModel UI model interfaces (MVC methodology) is strongly suggested.
+ * Do we have to use MVC, yes we do to correctly handle the lifecycle of fragment UI elements, that
  * cannot handle their own lifecycle.
  * However we have synthetic imports that resolve this, well no they don't:
  * If you dispose of this fragment, which what happens if you say logout then log in again, the

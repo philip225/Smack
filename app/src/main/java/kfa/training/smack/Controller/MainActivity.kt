@@ -245,9 +245,9 @@ class MainActivity : AppCompatActivity() {
                    socket.emit("newChannel", channelName, channelDesc)
 
                }
-               .setNegativeButton("Cancel"){ dialog: DialogInterface?, which ->
+               .setNegativeButton("Cancel"){ _: DialogInterface?, _ ->
                    // Course deviation, parameter 'i' is now named 'which'
-
+                   // Course deviation, both parameters renamed to '_', since they are unused.
                }.show()
        }
     }

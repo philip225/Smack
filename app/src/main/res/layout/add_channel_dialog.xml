@@ -23,7 +23,8 @@
         android:ems="10"
         android:hint="@string/channel_name"
         android:inputType="textPersonName"
-        android:textColor="@android:color/darker_gray" />
+        android:textColor="@android:color/darker_gray"
+        android:autofillHints="@string/add_channel" />
 
     <EditText
         android:id="@+id/addChannelDescTxt"
@@ -35,5 +36,6 @@
         android:ems="10"
         android:hint="@string/channel_description"
         android:inputType="textPersonName"
-        android:textColor="@android:color/darker_gray" />
+        android:textColor="@android:color/darker_gray"
+        android:autofillHints="@string/channel_description" />
 </androidx.appcompat.widget.LinearLayoutCompat>

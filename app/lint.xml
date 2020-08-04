@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <!-- Ignore the UnusedResources issue for the given ids -->
+    <issue id="UnusedResources">
+        <!--Ignore the avatar images.-->
+        <ignore regexp="dark*|light*|smacklogo*" />
+    </issue>
+
+    <!-- Typographic lint disabling does not appear to work for XML files.
+    Research suggest this is not even supported (for XML) the lint (for XML) appears to be performed
+    by IntelliJ and not Android!
+    todo: Work out what is going on here!
+    -->
+    <issue id="Typos">
+        <ignore path="\*/layout/\*"/>
+        <ignore regexp="src/main/java/kfa/training/smack/utilities/\*.kt"/>
+    </issue>
+
+    <!-- Worth having this set to force us to convert hard coded strings, into resources. -->
+    <issue id="HardcodedText" severity="error" />
+</lint>

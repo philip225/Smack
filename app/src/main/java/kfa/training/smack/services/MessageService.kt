@@ -49,7 +49,7 @@ object MessageService {
 
         }, Response.ErrorListener {error ->
             /** Error **/
-            Log.d("MS/ERROR", "Could not retreave channels due to $error")
+            Log.d("MS/ERROR", "Could not retrieve channels due to $error")
             complete(false)
         }){
             override fun getBodyContentType(): String {
