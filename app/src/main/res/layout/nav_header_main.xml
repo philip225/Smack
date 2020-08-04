@@ -22,7 +22,7 @@
         app:layout_constraintBottom_toTopOf="@+id/loginBtnNavHeader"
         app:layout_constraintStart_toStartOf="parent"
         app:srcCompat="@drawable/profiledefault"
-        android:contentDescription="Navigation header image" />
+        android:contentDescription="@string/navigation_header_image" />
 
     <TextView
         android:id="@+id/userNameNavHeader"
@@ -69,5 +69,6 @@
         android:scaleType="fitXY"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/addchannelbutton" />
+        app:srcCompat="@drawable/addchannelbutton"
+        android:contentDescription="@string/add_channel_button" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -23,7 +23,7 @@ class ChannelAdapter(val context: Context, val drawLayout: DrawerLayout, private
         private val channelTextView: TextView = itemView.channelNameTxt
 
         fun bindView(channel: Channel){
-            channelTextView.text = "#${channel.name}"
+            channelTextView.text = context.getString(R.string.channel_name_hash, channel.name)
             channelTextView.setOnClickListener {
                 // Close the RH draw!
                 drawLayout.closeDrawer(GravityCompat.START)

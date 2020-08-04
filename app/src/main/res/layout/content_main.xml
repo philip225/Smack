@@ -7,6 +7,17 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:showIn="@layout/app_bar_main">
 
+    <!--
+    This should be replaced with a FragmentContainerView however the navigation
+    API has not caught up with this. Navigation still creates fragments and
+    there are known issues with the navigation and FragmentContainerView.
+    Specifically the fragmentManager is in "initialising" state when
+    Navigation onCreate is called, which is wrong since Navigation tries to
+    make use of the fragmentManager when it is not fully initialised.
+    See https://issuetracker.google.com/issues/142847973
+    In the mean time added tools:ignore="FragmentTagUsage" to suppress
+    the lint.
+     #-->
     <fragment
         android:id="@+id/nav_host_fragment"
         android:name="androidx.navigation.fragment.NavHostFragment"
@@ -16,5 +27,6 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:navGraph="@navigation/mobile_navigation" />
+        app:navGraph="@navigation/mobile_navigation"
+        tools:ignore="FragmentTagUsage" />
 </androidx.constraintlayout.widget.ConstraintLayout>

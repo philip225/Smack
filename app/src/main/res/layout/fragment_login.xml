@@ -9,7 +9,7 @@
 
     <!--
     Note on onClick handlers and fragments.
-    Each fragment is modular, so the functionality it performat is self
+    Each fragment is modular, so the functionality it performs is self
     contained.
     Which means our on click handlers have to be defined in our corresponding
     LoginFragment class.
@@ -27,11 +27,12 @@
         android:layout_marginTop="32dp"
         android:layout_marginEnd="32dp"
         android:ems="10"
-        android:hint="Email"
-        android:inputType="textPersonName"
+        android:hint="@string/email"
+        android:inputType="textEmailAddress"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:autofillHints="@string/email" />
 
     <EditText
         android:id="@+id/loginPasswordTxt"
@@ -41,11 +42,12 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="32dp"
         android:ems="10"
-        android:hint="Password"
+        android:hint="@string/password"
         android:inputType="textPassword"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/loginEmailTxt" />
+        app:layout_constraintTop_toBottomOf="@+id/loginEmailTxt"
+        android:autofillHints="@string/password" />
 
     <Button
         android:id="@+id/loginLoginBtn"
@@ -55,7 +57,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="32dp"
         android:background="@color/colorPrimary"
-        android:text="Login"
+        android:text="@string/login"
         android:textColor="@android:color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -66,7 +68,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="56dp"
-        android:text="Don't have an account?"
+        android:text="@string/don_t_have_an_account"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/loginLoginBtn" />
@@ -79,7 +81,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="32dp"
         android:background="@color/colorPrimary"
-        android:text="Sign up here"
+        android:text="@string/sign_up_here"
         android:textColor="@android:color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

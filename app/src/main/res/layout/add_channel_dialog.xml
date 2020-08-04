@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="26dp"
         android:layout_marginBottom="16dp"
-        android:text="Add channel."
+        android:text="@string/add_channel"
         android:textAlignment="center"
         android:textSize="18sp" />
 
@@ -23,7 +23,7 @@
         android:layout_marginRight="18dp"
         android:layout_marginBottom="18dp"
         android:ems="10"
-        android:hint="Channel name"
+        android:hint="@string/channel_name"
         android:inputType="textPersonName"
         android:textColor="@android:color/darker_gray" />
 
@@ -35,7 +35,7 @@
         android:layout_marginRight="18dp"
         android:layout_marginBottom="18dp"
         android:ems="10"
-        android:hint="Channel description"
+        android:hint="@string/channel_description"
         android:inputType="textPersonName"
         android:textColor="@android:color/darker_gray" />
 </androidx.appcompat.widget.LinearLayoutCompat>
