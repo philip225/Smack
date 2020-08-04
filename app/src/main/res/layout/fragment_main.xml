@@ -72,7 +72,6 @@ Course deviation, this was originally in activity_main, now moved to this
     Added tools:ignore="OnClick" to suppress the error.
     -->
     <ImageButton
-        android:id="@+id/sendMessageBtn"
         android:layout_width="35dp"
         android:layout_height="35dp"
         android:layout_marginEnd="8dp"
