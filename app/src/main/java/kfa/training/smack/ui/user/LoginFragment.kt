@@ -83,9 +83,7 @@ class LoginFragment : Fragment() {
 
                             // Deviation from course, we navigate back to the main fragment
                             // via the id action_loginFragment_to_nav_main
-                            navigateToFragment(this,
-                                R.id.action_loginFragment_to_nav_main
-                            )
+                            this.navigateToFragment(R.id.action_loginFragment_to_nav_main)
                         } else {
                             // Find user by email failed
                             errorToast()
@@ -104,9 +102,7 @@ class LoginFragment : Fragment() {
         /**
          * Navigate to the create user fragment
          */
-        navigateToFragment(this,
-            R.id.action_loginFragment_to_createUserFragment
-        )
+        this.navigateToFragment(R.id.action_loginFragment_to_createUserFragment)
     }
 
     private fun errorToast() {

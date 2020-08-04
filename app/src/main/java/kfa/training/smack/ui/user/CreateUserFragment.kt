@@ -176,8 +176,7 @@ class CreateUserFragment : Fragment() {
                                     // main fragment.
                                     // Looking at our navigation we want to navigate via the
                                     // resource action_createUserFragment_to_nav_main
-                                    navigateToFragment(this,
-                                        R.id.action_createUserFragment_to_nav_main)
+                                    this.navigateToFragment(R.id.action_createUserFragment_to_nav_main)
 
                                 } else {
                                     errorToast()

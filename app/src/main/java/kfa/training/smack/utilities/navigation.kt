@@ -6,24 +6,20 @@ import androidx.navigation.Navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import kfa.training.smack.R
 
-fun navigateToFragment(activity:Activity, navigableResourceID:Int){
+infix fun Activity.navigateToFragment(navigableResourceID:Int){
     /**
-     * Convenience function to shorten the code for navigation, from an activity.
-     * @param activity: Main activity, if this is called from inside an Activity then pass 'this'.
+     * Convenience infix to shorten the code for navigation, from an activity.
      * @param navigableResourceID: A navigation path resource or navigation fragment id.
      */
     // This is subtly different to the normal call of Activity.findNavController(), since
     // we are navigating from an Activity to a Fragment and need to specify
-    findNavController(activity, R.id.nav_host_fragment).navigate(navigableResourceID)
+    findNavController(this, R.id.nav_host_fragment).navigate(navigableResourceID)
 }
 
-// For the curious this is an example of function overloading.
-// See https://kotlinlang.org/docs/tutorials/kotlin-for-py/functions.html#overloading
-fun navigateToFragment(fragment: Fragment, navigableResourceID:Int){
+infix fun Fragment.navigateToFragment(navigableResourceID:Int){
     /**
-     * Convenience function to shorten the code for navigation, from a fragment.
-     * @param fragment: Fragment, if this is called from inside a Fragment then pass 'this'.
+     * Convenience infix to shorten the code for navigation, from a fragment.
      * @param navigableResourceID: A navigation path resource or navigation fragment id.
      */
-    fragment.findNavController().navigate(navigableResourceID)
+    this.findNavController().navigate(navigableResourceID)
 }

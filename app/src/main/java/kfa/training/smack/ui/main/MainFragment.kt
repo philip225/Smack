@@ -124,14 +124,11 @@ class MainFragment : Fragment() {
     }
     */
 
-
-
-    // BUG: This is being called twice!
-    // Reason:
     private val onChannelChanged = object: BroadcastReceiver(){
         override fun onReceive(context: Context?, intent: Intent?) {
             /** Received notification of a channel change **/
             if(App.prefs.isLoggedIn){
+                // Deviation from course: This uses live data.
                 // Update the channel name
                 mainViewModel.mainChannelName.value = "#${MessageService.selectedChannel?.name}"
                 // Update the channels

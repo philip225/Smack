@@ -326,10 +326,8 @@ class MainActivity : AppCompatActivity() {
             // Login
             // Close the draw (navigation to another fragment, does not close the draw)!
             drawerLayout.closeDrawer(GravityCompat.START)
-            // You can alternatively do: navigateToFragment(this, R.id.loginFragment)
-            navigateToFragment(this,
-                R.id.action_nav_main_to_loginFragment
-            )
+            // You can alternatively do: this.navigateToFragment(R.id.loginFragment)
+            this.navigateToFragment(R.id.action_nav_main_to_loginFragment)
         }
     }
 
