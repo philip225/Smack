@@ -33,7 +33,8 @@ All the parts of the course for all the steps that were published, have their ow
 for example "79-Login-user".
 
 The final branch "93-Displaying-Messages" is a complete version but with no tidy-up.
-The master branch has a "tidied up" version, with all lint issues for Android, resolved.
+The master branch has a "tidied up" version, with all lint issues for Android, resolved (except 
+Typos).
 
 Special branches exist:
 Resolve-fragment-data-ui-update-issue - this holds the code refactor that was merged back into 
